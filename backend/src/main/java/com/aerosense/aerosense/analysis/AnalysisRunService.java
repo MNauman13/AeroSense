@@ -3,6 +3,7 @@ package com.aerosense.aerosense.analysis;
 import com.aerosense.aerosense.common.PageResponse;
 import com.aerosense.aerosense.cycle.MeasurementEntity;
 import com.aerosense.aerosense.cycle.MeasurementRepository;
+import com.aerosense.aerosense.cycle.MeasurementTrendProjection;
 import com.aerosense.aerosense.cycle.TestCycleEntity;
 import com.aerosense.aerosense.cycle.TestCycleRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -39,6 +40,13 @@ public class AnalysisRunService {
           "vibration_rms",
           "temperature_c",
           "cycle_duration_ms");
+  private static final Map<String, String> FEATURE_UNITS =
+      Map.of(
+          "extension_time_ms", "ms",
+          "pressure_kpa", "kPa",
+          "vibration_rms", "g_rms",
+          "temperature_c", "degC",
+          "cycle_duration_ms", "ms");
 
   private final AnalysisRunRepository runRepository;
   private final AnomalyResultRepository resultRepository;
@@ -240,6 +248,32 @@ public class AnalysisRunService {
         "Synthetic demonstration data only. Summary statistics are not engineering limits or safety advice.");
   }
 
+  @Transactional(readOnly = true)
+  public MeasurementTrendResponse getTrend(
+      String featureName, UUID rigId, Instant from, Instant to, int limit) {
+    validateTimeRange(from, to);
+    if (!FEATURE_UNITS.containsKey(featureName)) {
+      throw new IllegalArgumentException(
+          "featureName must be one of the five synthetic feature keys");
+    }
+    if (limit < 1 || limit > 500) {
+      throw new IllegalArgumentException("limit must be between 1 and 500");
+    }
+    List<MeasurementTrendPoint> points =
+        measurementRepository
+            .findTrend(featureName, rigId, from, to, PageRequest.of(0, limit))
+            .stream()
+            .map(this::toTrendPoint)
+            .toList();
+    var chronological = new ArrayList<>(points);
+    java.util.Collections.reverse(chronological);
+    return new MeasurementTrendResponse(
+        featureName,
+        FEATURE_UNITS.get(featureName),
+        chronological,
+        "Synthetic measurement values only. Not engineering limits or safety advice.");
+  }
+
   private Map<UUID, Map<String, Double>> loadFeatureVectors(List<TestCycleEntity> cycles) {
     return loadFeatureVectorsByIds(cycles.stream().map(TestCycleEntity::getId).toList());
   }
@@ -354,6 +388,11 @@ public class AnalysisRunService {
         result.isFlagged(),
         explanation,
         result.getCreatedAt());
+  }
+
+  private MeasurementTrendPoint toTrendPoint(MeasurementTrendProjection point) {
+    return new MeasurementTrendPoint(
+        point.getCycleId(), point.getCycleCode(), point.getRecordedAt(), point.getValue());
   }
 
   private void validatePage(int page, int size) {

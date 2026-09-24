@@ -140,6 +140,17 @@ class AnalysisApiIntegrationTest {
         .andExpect(jsonPath("$.totalCycles").value(1))
         .andExpect(jsonPath("$.analyzedCycles").value(1))
         .andExpect(jsonPath("$.measurements[0].sampleCount").value(1));
+    mockMvc
+        .perform(
+            get("/api/v1/metrics/trend")
+                .param("featureName", "vibration_rms")
+                .param("rigId", rig.getId().toString())
+                .param("limit", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.unit").value("g_rms"))
+        .andExpect(jsonPath("$.points.length()").value(2))
+        .andExpect(jsonPath("$.points[0].cycleId").value(cycleWithLabel.getId().toString()))
+        .andExpect(jsonPath("$.points[1].cycleId").value(cycleWithoutLabel.getId().toString()));
   }
 
   @Test

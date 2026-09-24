@@ -183,6 +183,22 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/MetricsSummaryResponse'}
+  /api/v1/metrics/trend:
+    get:
+      operationId: getMeasurementTrend
+      parameters:
+        - {name: featureName, in: query, required: true, schema: {type: string, enum: [extension_time_ms, pressure_kpa, vibration_rms, temperature_c, cycle_duration_ms]}}
+        - {name: rigId, in: query, schema: {type: string, format: uuid}}
+        - {name: from, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: to, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 500, default: 200}}
+      responses:
+        '200':
+          description: Latest filtered synthetic measurement points, returned in chronological order.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MeasurementTrendResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
   /api/v1/assistant/questions:
     post:
       operationId: askQuestion
@@ -454,6 +470,25 @@ components:
         measurements:
           type: array
           items: {$ref: '#/components/schemas/MeasurementSummaryResponse'}
+        disclaimer: {type: string}
+    MeasurementTrendPoint:
+      type: object
+      required: [cycleId, cycleCode, recordedAt, value]
+      properties:
+        cycleId: {$ref: '#/components/schemas/Uuid'}
+        cycleCode: {type: string}
+        recordedAt: {$ref: '#/components/schemas/UtcInstant'}
+        value: {type: number}
+    MeasurementTrendResponse:
+      type: object
+      required: [featureName, unit, points, disclaimer]
+      properties:
+        featureName: {type: string, enum: [extension_time_ms, pressure_kpa, vibration_rms, temperature_c, cycle_duration_ms]}
+        unit: {type: string}
+        points:
+          type: array
+          maxItems: 500
+          items: {$ref: '#/components/schemas/MeasurementTrendPoint'}
         disclaimer: {type: string}
     EvaluationCycle:
       allOf:

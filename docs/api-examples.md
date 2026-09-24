@@ -168,3 +168,21 @@ The response includes the run ID, status, selected cycle count, model version, a
 ```
 
 When no passage supports the question, the response uses `insufficientEvidence: true`, an explicit not-found answer, and an empty citations list. The retrieval service never creates note content or engineering advice.
+
+GET /api/v1/metrics/trend?featureName=vibration_rms&limit=200 returns the latest matching synthetic measurements in chronological order. Optional rigId, from, and to filters are shared with the cycle list and summary endpoints. The inclusive from and to values are UTC timestamps.
+
+~~~json
+{
+  "featureName": "vibration_rms",
+  "unit": "g_rms",
+  "points": [
+    {
+      "cycleId": "00000000-0000-4000-8000-000000000101",
+      "cycleCode": "CYC-000001",
+      "recordedAt": "2026-01-01T00:00:00Z",
+      "value": 0.29
+    }
+  ],
+  "disclaimer": "Synthetic measurement values only. Not engineering limits or safety advice."
+}
+~~~

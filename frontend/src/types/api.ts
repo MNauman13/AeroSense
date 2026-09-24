@@ -152,6 +152,20 @@ export interface MetricsSummaryResponse {
   disclaimer: string;
 }
 
+export interface MeasurementTrendPoint {
+  cycleId: UUID;
+  cycleCode: string;
+  recordedAt: UtcInstant;
+  value: number;
+}
+
+export interface MeasurementTrendResponse {
+  featureName: FeatureName;
+  unit: string;
+  points: MeasurementTrendPoint[];
+  disclaimer: string;
+}
+
 export interface Citation {
   sourceId: string;
   title: string;

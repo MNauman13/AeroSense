@@ -62,4 +62,14 @@ public class AnalysisController {
       @RequestParam(name = "to", required = false) Instant to) {
     return analysisRunService.getSummary(rigId, from, to);
   }
+
+  @GetMapping("/metrics/trend")
+  public MeasurementTrendResponse trend(
+      @RequestParam String featureName,
+      @RequestParam(required = false) UUID rigId,
+      @RequestParam(name = "from", required = false) Instant from,
+      @RequestParam(name = "to", required = false) Instant to,
+      @RequestParam(defaultValue = "200") @Min(1) @Max(500) int limit) {
+    return analysisRunService.getTrend(featureName, rigId, from, to, limit);
+  }
 }
