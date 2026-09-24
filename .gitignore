@@ -1,0 +1,28 @@
+# Java / Maven
+target/
+*.class
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / Vite
+node_modules/
+frontend/dist/
+frontend/coverage/
+
+# Local configuration and data
+.env
+!.env.example
+data/generated/*
+!data/generated/.gitkeep
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
