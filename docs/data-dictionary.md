@@ -29,7 +29,7 @@ These values only make the generated demo varied and legible. They are not limit
 
 The baseline is `robust-zscore`, version `1`. For each feature in a scoring cohort, calculate its median and median absolute deviation (MAD); the robust z-score is `(value - median) / (1.4826 * MAD)`. If MAD is zero, use a 1e-9 denominator to keep outputs finite. A feature contribution is `min(abs(robustZScore) / 8, 1)`. The cycle score is the maximum contribution across its features, in `[0, 1]`; a higher score means more unusual relative to that synthetic cohort. The default threshold is `0.65`; a cycle is flagged when `score >= threshold`. A caller may configure a threshold in `[0, 1]`.
 
-Explanations list feature name, observed value, cohort median, signed robust z-score, and non-negative contribution, sorted by contribution descending. These are numerical associations used by the scoring method, not causal explanations. Scores and thresholds are not validated engineering limits.
+Explanations list feature name, observed value, cohort median, signed robust z-score, and non-negative contribution, sorted by contribution descending with feature-name order breaking ties. These are numerical associations used by the scoring method, not causal explanations. Scores and thresholds are not validated engineering limits.
 
 ## API conventions
 

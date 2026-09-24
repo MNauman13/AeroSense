@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 FeatureName = Literal[
     "extension_time_ms",
@@ -36,6 +36,13 @@ class CycleFeatures(ContractModel):
 class ScoreRequest(ContractModel):
     threshold: float = Field(default=0.65, ge=0.0, le=1.0)
     cycles: list[CycleFeatures] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def unique_cycle_ids(self) -> Self:
+        ids = [cycle.cycleId for cycle in self.cycles]
+        if len(ids) != len(set(ids)):
+            raise ValueError("cycleId values must be unique within a request")
+        return self
 
 
 class FeatureContribution(ContractModel):
@@ -76,6 +83,13 @@ class EvaluationRequest(ContractModel):
     threshold: float = Field(default=0.65, ge=0.0, le=1.0)
     cycles: list[EvaluationCycle] = Field(min_length=1)
 
+    @model_validator(mode="after")
+    def unique_cycle_ids(self) -> Self:
+        ids = [cycle.cycleId for cycle in self.cycles]
+        if len(ids) != len(set(ids)):
+            raise ValueError("cycleId values must be unique within a request")
+        return self
+
 
 class EvaluationResponse(ContractModel):
     modelName: Literal["robust-zscore"] = "robust-zscore"
@@ -111,3 +125,15 @@ class AnswerResponse(ContractModel):
 
 class RetrievalRequest(QuestionRequest):
     cycleContext: dict[str, object] | None = None
+
+
+class ApiError(ContractModel):
+    code: str
+    message: str
+    requestId: str
+    fieldErrors: dict[str, list[str]] | None = None
+
+
+class HealthResponse(ContractModel):
+    status: Literal["UP", "DEGRADED", "DOWN"]
+    dependencies: dict[str, Literal["UP", "DOWN", "UNKNOWN"]] = Field(default_factory=dict)

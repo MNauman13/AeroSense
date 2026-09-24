@@ -12,6 +12,17 @@ servers:
   - url: http://localhost:8000
     description: Python analytics and retrieval service
 paths:
+  /health:
+    get:
+      operationId: analyticsHealth
+      servers:
+        - url: http://localhost:8000
+      responses:
+        '200':
+          description: Python analytics and retrieval service readiness.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthResponse'}
   /api/v1/health:
     get:
       operationId: publicHealth
