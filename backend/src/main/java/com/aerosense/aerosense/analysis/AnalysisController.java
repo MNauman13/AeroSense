@@ -4,6 +4,7 @@ import com.aerosense.aerosense.common.PageResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,7 +56,10 @@ public class AnalysisController {
   }
 
   @GetMapping("/metrics/summary")
-  public MetricsSummaryResponse summary() {
-    return analysisRunService.getSummary();
+  public MetricsSummaryResponse summary(
+      @RequestParam(required = false) UUID rigId,
+      @RequestParam(name = "from", required = false) Instant from,
+      @RequestParam(name = "to", required = false) Instant to) {
+    return analysisRunService.getSummary(rigId, from, to);
   }
 }

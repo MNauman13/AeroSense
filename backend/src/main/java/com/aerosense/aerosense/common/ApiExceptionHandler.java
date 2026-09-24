@@ -1,6 +1,7 @@
 package com.aerosense.aerosense.common;
 
 import com.aerosense.aerosense.analysis.AnalyticsUnavailableException;
+import com.aerosense.aerosense.assistant.RetrievalUnavailableException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,16 @@ public class ApiExceptionHandler {
         HttpStatus.SERVICE_UNAVAILABLE,
         "ANALYTICS_UNAVAILABLE",
         "Synthetic analytics is temporarily unavailable.",
+        Map.of());
+  }
+
+  @ExceptionHandler(RetrievalUnavailableException.class)
+  public ResponseEntity<ApiError> handleRetrievalUnavailable(
+      RetrievalUnavailableException exception) {
+    return error(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        "RETRIEVAL_UNAVAILABLE",
+        "Synthetic retrieval is temporarily unavailable.",
         Map.of());
   }
 

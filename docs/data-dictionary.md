@@ -24,6 +24,7 @@ These values only make the generated demo varied and legible. They are not limit
 - **Feature vector**: `features` object containing all five feature keys above. Inference rejects missing, extra, null, non-numeric, NaN, and infinite values; it does not impute.
 - **Ground truth**: `syntheticLabel` is stored on generated cycles for evaluation only. It is accepted only by the isolated evaluation request and must never be sent to `/v1/score` or used as an inference feature.
 - **Citation**: stable `sourceId`, `title`, and a verbatim `excerpt` from a clearly fictional local note.
+- **Reference note chunks**: paragraph-sized passages loaded from the checked-in fictional Markdown corpus; citations identify a stable note ID and chunk number.
 
 ## Analysis semantics
 

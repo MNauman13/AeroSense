@@ -1,5 +1,6 @@
 package com.aerosense.aerosense.analysis;
 
+import com.aerosense.aerosense.assistant.RetrievalClient;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +15,20 @@ public class AnalyticsClientConfiguration {
   @Bean
   AnalyticsClient analyticsClient(
       RestClient.Builder builder, @Value("${aerosense.analytics-url}") String analyticsUrl) {
+    return new AnalyticsClient(configuredClient(builder, analyticsUrl, Duration.ofSeconds(30)));
+  }
+
+  @Bean
+  RetrievalClient retrievalClient(
+      RestClient.Builder builder, @Value("${aerosense.retrieval-url}") String retrievalUrl) {
+    return new RetrievalClient(configuredClient(builder, retrievalUrl, Duration.ofSeconds(10)));
+  }
+
+  private RestClient configuredClient(
+      RestClient.Builder builder, String serviceUrl, Duration readTimeout) {
     HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
     JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
-    requestFactory.setReadTimeout(Duration.ofSeconds(30));
-    RestClient restClient = builder.baseUrl(analyticsUrl).requestFactory(requestFactory).build();
-    return new AnalyticsClient(restClient);
+    requestFactory.setReadTimeout(readTimeout);
+    return builder.baseUrl(serviceUrl).requestFactory(requestFactory).build();
   }
 }

@@ -1,5 +1,6 @@
 package com.aerosense.aerosense.analysis;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -39,16 +40,29 @@ public interface AnomalyResultRepository extends JpaRepository<AnomalyResultEnti
       """
       select count(distinct result.testCycle.id) from AnomalyResultEntity result
       where result.analysisRun.status = 'SUCCEEDED'
+        and (:rigId is null or result.testCycle.rig.id = :rigId)
+        and (:fromTime is null or result.testCycle.recordedAt >= :fromTime)
+        and (:toTime is null or result.testCycle.recordedAt <= :toTime)
       """)
-  long countAnalyzedCycles();
+  long countAnalyzedCycles(
+      @Param("rigId") UUID rigId,
+      @Param("fromTime") Instant fromTime,
+      @Param("toTime") Instant toTime);
 
   @Query(
       """
       select count(distinct result.testCycle.id) from AnomalyResultEntity result
-      where result.isFlagged = true and result.createdAt = (
+      where result.isFlagged = true
+        and (:rigId is null or result.testCycle.rig.id = :rigId)
+        and (:fromTime is null or result.testCycle.recordedAt >= :fromTime)
+        and (:toTime is null or result.testCycle.recordedAt <= :toTime)
+        and result.createdAt = (
         select max(latest.createdAt) from AnomalyResultEntity latest
         where latest.testCycle.id = result.testCycle.id
       )
       """)
-  long countLatestFlaggedCycles();
+  long countLatestFlaggedCycles(
+      @Param("rigId") UUID rigId,
+      @Param("fromTime") Instant fromTime,
+      @Param("toTime") Instant toTime);
 }

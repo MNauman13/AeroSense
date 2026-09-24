@@ -12,7 +12,7 @@ flowchart LR
   Retrieval --> Notes[Fictional Markdown notes]
 ```
 
-The React client calls only the Java API. Java owns public HTTP contracts, workflow, and persistence. Python accepts versioned JSON for scoring, evaluation, and retrieval, and does not own the relational database. The same Python service can host analytics and retrieval for this small local demo while keeping their modules separate. PostgreSQL stores generated cycles and persisted analysis results.
+The React client calls only the Java API. Java owns public HTTP contracts, workflow, and persistence. Python accepts versioned JSON for scoring, evaluation, and retrieval, and does not own the relational database. The same Python service hosts analytics and deterministic retrieval while keeping their modules separate. PostgreSQL stores generated cycles and persisted analysis results. Retrieval reads checked-in fictional Markdown notes, assigns stable paragraph chunk IDs, and ranks them lexically; unsupported questions return an explicit insufficient-evidence answer.
 
 ## Data and safety
 

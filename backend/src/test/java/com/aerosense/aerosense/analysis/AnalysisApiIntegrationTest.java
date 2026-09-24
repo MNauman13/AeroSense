@@ -111,6 +111,11 @@ class AnalysisApiIntegrationTest {
         .andExpect(jsonPath("$.totalElements").value(1))
         .andExpect(jsonPath("$.items[0].id").value(cycleWithoutLabel.getId().toString()));
     mockMvc
+        .perform(get("/api/v1/cycles/{cycleId}/analysis/latest", cycleWithoutLabel.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.isFlagged").value(true))
+        .andExpect(jsonPath("$.score").value(0.8));
+    mockMvc
         .perform(get("/api/v1/analysis-runs/{runId}/results", runId).param("flagged", "true"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items.length()").value(1));
@@ -125,6 +130,16 @@ class AnalysisApiIntegrationTest {
         .andExpect(jsonPath("$.analyzedCycles").value(2))
         .andExpect(jsonPath("$.flaggedCycles").value(1))
         .andExpect(jsonPath("$.measurements.length()").value(5));
+    mockMvc
+        .perform(
+            get("/api/v1/metrics/summary")
+                .param("rigId", rig.getId().toString())
+                .param("from", "2026-01-01T00:00:00Z")
+                .param("to", "2026-01-01T00:00:00Z"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalCycles").value(1))
+        .andExpect(jsonPath("$.analyzedCycles").value(1))
+        .andExpect(jsonPath("$.measurements[0].sampleCount").value(1));
   }
 
   @Test
@@ -159,11 +174,38 @@ class AnalysisApiIntegrationTest {
         .andExpect(jsonPath("$.status").value("FAILED"))
         .andExpect(
             jsonPath("$.errorMessage")
-                .value("Synthetic analysis failed. Check that the analytics service is available."))
+                .value(
+                    "Synthetic analysis failed because analytics was unavailable or returned invalid results."))
         .andExpect(
             jsonPath("$.errorMessage")
                 .value(
                     org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("internal"))));
+  }
+
+  @Test
+  void invalidAnalyticsResponseFailsRunWithoutSavingResultRows() throws Exception {
+    TestRigEntity rig =
+        rigRepository.save(
+            new TestRigEntity(
+                UUID.randomUUID(), "RIG-SYN-54", "Fictional synthetic demonstration rig."));
+    saveCycle(rig, "CYC-000054", false, 0);
+    when(analyticsClient.score(any(ScoreRequest.class)))
+        .thenReturn(
+            new ScoreResponse("unknown-model", "1", 0.65, "higher_is_more_anomalous", List.of()));
+    String body =
+        objectMapper.writeValueAsString(Map.of("modelName", "robust-zscore", "rigId", rig.getId()));
+
+    String response =
+        mockMvc
+            .perform(post("/api/v1/analysis-runs").contentType("application/json").content(body))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("FAILED"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    UUID runId = UUID.fromString(objectMapper.readTree(response).get("id").asText());
+
+    assertThat(resultRepository.countByAnalysisRun_Id(runId)).isZero();
   }
 
   private TestCycleEntity saveCycle(

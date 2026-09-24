@@ -169,7 +169,10 @@ def test_fastapi_health_score_evaluate_openapi_and_common_validation_error() -> 
 
     health = client.get("/health")
     assert health.status_code == 200
-    assert health.json() == {"status": "UP", "dependencies": {}}
+    assert health.json() == {
+        "status": "UP",
+        "dependencies": {"analytics": "UP", "retrieval": "UP"},
+    }
 
     scored = client.post("/v1/score", json=body)
     assert scored.status_code == 200

@@ -32,4 +32,16 @@ public interface TestCycleRepository extends JpaRepository<TestCycleEntity, UUID
       @Param("toTime") Instant toTime,
       @Param("flagged") Boolean flagged,
       Pageable pageable);
+
+  @Query(
+      """
+      select count(c) from TestCycleEntity c
+      where (:rigId is null or c.rig.id = :rigId)
+        and (:fromTime is null or c.recordedAt >= :fromTime)
+        and (:toTime is null or c.recordedAt <= :toTime)
+      """)
+  long countFiltered(
+      @Param("rigId") UUID rigId,
+      @Param("fromTime") Instant fromTime,
+      @Param("toTime") Instant toTime);
 }

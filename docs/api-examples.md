@@ -156,12 +156,12 @@ The response includes the run ID, status, selected cycle count, model version, a
 
 ```json
 {
-  "answer": "The fictional note describes comparing the cycle's synthetic vibration summary with the demo cohort.",
+  "answer": "The fictional demo notes say: “For this synthetic example, compare the displayed vibration summary with the other generated cycles and read the score explanation beside the measurement table.”",
   "insufficientEvidence": false,
   "citations": [{
-    "sourceId": "demo-note-01",
-    "title": "Fictional test review note",
-    "excerpt": "For this synthetic example, compare the vibration summary with the demonstration cohort."
+    "sourceId": "demo-note-02#chunk-01",
+    "title": "Fictional demonstration review note",
+    "excerpt": "For this synthetic example, compare the displayed vibration summary with the other generated cycles and read the score explanation beside the measurement table."
   }],
   "disclaimer": "Synthetic demonstration only. Not engineering or maintenance advice."
 }

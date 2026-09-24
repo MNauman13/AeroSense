@@ -110,7 +110,7 @@ public class AnalysisRunService {
     } catch (AnalyticsUnavailableException | IllegalStateException exception) {
       run.fail(
           Instant.now(),
-          "Synthetic analysis failed. Check that the analytics service is available.");
+          "Synthetic analysis failed because analytics was unavailable or returned invalid results.");
       runRepository.save(run);
       return toRunResponse(run, cycles.size());
     }
@@ -218,9 +218,10 @@ public class AnalysisRunService {
   }
 
   @Transactional(readOnly = true)
-  public MetricsSummaryResponse getSummary() {
+  public MetricsSummaryResponse getSummary(UUID rigId, Instant from, Instant to) {
+    validateTimeRange(from, to);
     List<MeasurementSummaryResponse> summaries =
-        measurementRepository.summarizeByFeature().stream()
+        measurementRepository.summarizeByFeature(rigId, from, to).stream()
             .map(
                 row ->
                     new MeasurementSummaryResponse(
@@ -232,9 +233,9 @@ public class AnalysisRunService {
                         row.getMaximum()))
             .toList();
     return new MetricsSummaryResponse(
-        cycleRepository.count(),
-        resultRepository.countAnalyzedCycles(),
-        resultRepository.countLatestFlaggedCycles(),
+        cycleRepository.countFiltered(rigId, from, to),
+        resultRepository.countAnalyzedCycles(rigId, from, to),
+        resultRepository.countLatestFlaggedCycles(rigId, from, to),
         summaries,
         "Synthetic demonstration data only. Summary statistics are not engineering limits or safety advice.");
   }

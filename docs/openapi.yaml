@@ -173,6 +173,10 @@ paths:
   /api/v1/metrics/summary:
     get:
       operationId: getMetricsSummary
+      parameters:
+        - {name: rigId, in: query, schema: {type: string, format: uuid}}
+        - {name: from, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: to, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
       responses:
         '200':
           description: Synthetic dataset counts and descriptive measurement statistics.
@@ -194,6 +198,12 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/AnswerResponse'}
         '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503':
+          description: Fictional note retrieval is unavailable.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApiError'}
   /v1/score:
     post:
       operationId: scoreCycles
@@ -244,6 +254,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/AnswerResponse'}
+        '422': {$ref: '#/components/responses/ValidationError'}
+        '503':
+          description: Fictional reference corpus is unavailable.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApiError'}
 components:
   responses:
     BadRequest:
