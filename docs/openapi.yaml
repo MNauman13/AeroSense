@@ -1,0 +1,354 @@
+openapi: 3.1.0
+info:
+  title: AeroSense Shared API Contracts
+  version: 1.0.0
+  description: >-
+    Shared wire contract for the Java application API and Python analytics/retrieval
+    service. All data is fictional synthetic demonstration output; no score,
+    threshold, or answer is engineering or maintenance advice.
+servers:
+  - url: http://localhost:8080
+    description: Java public API
+  - url: http://localhost:8000
+    description: Python analytics and retrieval service
+paths:
+  /api/v1/health:
+    get:
+      operationId: publicHealth
+      responses:
+        '200':
+          description: Application and downstream readiness.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthResponse'}
+  /api/v1/rigs:
+    get:
+      operationId: listRigs
+      responses:
+        '200':
+          description: Synthetic test rigs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/RigResponse'}
+  /api/v1/cycles:
+    get:
+      operationId: listCycles
+      parameters:
+        - {name: rigId, in: query, schema: {type: string, format: uuid}}
+        - {name: from, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: to, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: flagged, in: query, schema: {type: boolean}}
+        - {name: page, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: size, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        '200':
+          description: Page of cycles; synthetic ground-truth labels are omitted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/PageResponse'}
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/CycleResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/v1/cycles/{cycleId}:
+    get:
+      operationId: getCycle
+      parameters:
+        - {name: cycleId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Cycle with its five synthetic summary measurements.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CycleDetailResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/v1/assistant/questions:
+    post:
+      operationId: askQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/QuestionRequest'}
+      responses:
+        '200':
+          description: Deterministic answer with retrieved note citations or insufficient evidence.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnswerResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /v1/score:
+    post:
+      operationId: scoreCycles
+      servers:
+        - url: http://localhost:8000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ScoreRequest'}
+      responses:
+        '200':
+          description: Cohort-relative synthetic robust z-score results.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ScoreResponse'}
+        '422': {$ref: '#/components/responses/ValidationError'}
+  /v1/evaluate:
+    post:
+      operationId: evaluateSyntheticCycles
+      servers:
+        - url: http://localhost:8000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EvaluationRequest'}
+      responses:
+        '200':
+          description: Synthetic-only precision, recall, F1, and confusion counts.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EvaluationResponse'}
+        '422': {$ref: '#/components/responses/ValidationError'}
+  /v1/answer:
+    post:
+      operationId: retrieveAnswer
+      servers:
+        - url: http://localhost:8000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RetrievalRequest'}
+      responses:
+        '200':
+          description: Evidence-only deterministic answer from fictional local notes.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnswerResponse'}
+components:
+  responses:
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiError'}
+    ValidationError:
+      description: Request schema or value validation failed.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiError'}
+    NotFound:
+      description: The requested synthetic record was not found.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiError'}
+  schemas:
+    Uuid:
+      type: string
+      format: uuid
+    UtcInstant:
+      type: string
+      format: date-time
+      description: ISO 8601 / RFC 3339 timestamp in UTC.
+      examples: ['2026-01-01T00:00:00Z']
+    FeatureVector:
+      type: object
+      additionalProperties: false
+      required: [extension_time_ms, pressure_kpa, vibration_rms, temperature_c, cycle_duration_ms]
+      properties:
+        extension_time_ms: {type: number, description: Arbitrary synthetic milliseconds.}
+        pressure_kpa: {type: number, description: Arbitrary synthetic kilopascals.}
+        vibration_rms: {type: number, description: Arbitrary synthetic g_rms display value.}
+        temperature_c: {type: number, description: Arbitrary synthetic degrees Celsius.}
+        cycle_duration_ms: {type: number, description: Arbitrary synthetic milliseconds.}
+    RigResponse:
+      type: object
+      required: [id, rigCode, description, syntheticNotice]
+      properties:
+        id: {$ref: '#/components/schemas/Uuid'}
+        rigCode: {type: string, example: RIG-SYN-01}
+        description: {type: string, description: Must identify a fictional synthetic rig.}
+        syntheticNotice: {type: string}
+    CycleResponse:
+      type: object
+      required: [id, cycleCode, rigId, recordedAt, cycleType, isFlagged]
+      properties:
+        id: {$ref: '#/components/schemas/Uuid'}
+        cycleCode: {type: string, example: CYC-000001}
+        rigId: {$ref: '#/components/schemas/Uuid'}
+        recordedAt: {$ref: '#/components/schemas/UtcInstant'}
+        cycleType: {type: string}
+        isFlagged: {type: [boolean, 'null'], description: Null until a completed analysis exists; otherwise reflects the latest analysis.}
+    MeasurementResponse:
+      type: object
+      required: [featureName, value, unit, measuredAt]
+      properties:
+        featureName:
+          type: string
+          enum: [extension_time_ms, pressure_kpa, vibration_rms, temperature_c, cycle_duration_ms]
+        value: {type: number}
+        unit: {type: string}
+        measuredAt: {$ref: '#/components/schemas/UtcInstant'}
+    CycleDetailResponse:
+      allOf:
+        - {$ref: '#/components/schemas/CycleResponse'}
+        - type: object
+          required: [measurements]
+          properties:
+            measurements:
+              type: array
+              items: {$ref: '#/components/schemas/MeasurementResponse'}
+    CycleFeatures:
+      type: object
+      required: [cycleId, features]
+      properties:
+        cycleId: {$ref: '#/components/schemas/Uuid'}
+        features: {$ref: '#/components/schemas/FeatureVector'}
+    ScoreRequest:
+      type: object
+      required: [cycles]
+      properties:
+        threshold: {type: number, minimum: 0, maximum: 1, default: 0.65}
+        cycles:
+          type: array
+          minItems: 1
+          items: {$ref: '#/components/schemas/CycleFeatures'}
+    FeatureContribution:
+      type: object
+      required: [featureName, observedValue, baselineMedian, robustZScore, contribution]
+      properties:
+        featureName: {type: string, enum: [extension_time_ms, pressure_kpa, vibration_rms, temperature_c, cycle_duration_ms]}
+        observedValue: {type: number}
+        baselineMedian: {type: number}
+        robustZScore: {type: number}
+        contribution: {type: number, minimum: 0, maximum: 1}
+    Explanation:
+      type: object
+      required: [method, features]
+      properties:
+        method: {type: string, const: absolute_robust_z}
+        features:
+          type: array
+          items: {$ref: '#/components/schemas/FeatureContribution'}
+    ScoredCycle:
+      type: object
+      required: [cycleId, score, isFlagged, explanation]
+      properties:
+        cycleId: {$ref: '#/components/schemas/Uuid'}
+        score: {type: number, minimum: 0, maximum: 1}
+        isFlagged: {type: boolean}
+        explanation: {$ref: '#/components/schemas/Explanation'}
+    ScoreResponse:
+      type: object
+      required: [modelName, modelVersion, threshold, scoreDirection, results]
+      properties:
+        modelName: {type: string, const: robust-zscore}
+        modelVersion: {type: string, example: '1'}
+        threshold: {type: number, minimum: 0, maximum: 1}
+        scoreDirection: {type: string, const: higher_is_more_anomalous}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/ScoredCycle'}
+    EvaluationCycle:
+      allOf:
+        - {$ref: '#/components/schemas/CycleFeatures'}
+        - type: object
+          required: [syntheticLabel]
+          properties:
+            syntheticLabel: {type: boolean, description: Evaluation-only generator ground truth; never an inference feature.}
+    EvaluationRequest:
+      type: object
+      required: [cycles]
+      properties:
+        threshold: {type: number, minimum: 0, maximum: 1, default: 0.65}
+        cycles:
+          type: array
+          minItems: 1
+          items: {$ref: '#/components/schemas/EvaluationCycle'}
+    EvaluationResponse:
+      type: object
+      required: [modelName, modelVersion, totalCycles, truePositives, falsePositives, trueNegatives, falseNegatives, precision, recall, f1, disclaimer]
+      properties:
+        modelName: {type: string, const: robust-zscore}
+        modelVersion: {type: string}
+        totalCycles: {type: integer, minimum: 0}
+        truePositives: {type: integer, minimum: 0}
+        falsePositives: {type: integer, minimum: 0}
+        trueNegatives: {type: integer, minimum: 0}
+        falseNegatives: {type: integer, minimum: 0}
+        precision: {type: number, minimum: 0, maximum: 1}
+        recall: {type: number, minimum: 0, maximum: 1}
+        f1: {type: number, minimum: 0, maximum: 1}
+        disclaimer: {type: string}
+    QuestionRequest:
+      type: object
+      required: [question]
+      properties:
+        question: {type: string, minLength: 1, maxLength: 500}
+        cycleId: {$ref: '#/components/schemas/Uuid'}
+    RetrievalRequest:
+      allOf:
+        - {$ref: '#/components/schemas/QuestionRequest'}
+        - type: object
+          properties:
+            cycleContext:
+              type: object
+              additionalProperties: true
+              description: Optional structured synthetic cycle summary; treated as data, not instructions.
+    Citation:
+      type: object
+      required: [sourceId, title, excerpt]
+      properties:
+        sourceId: {type: string}
+        title: {type: string}
+        excerpt: {type: string}
+    AnswerResponse:
+      type: object
+      required: [answer, insufficientEvidence, citations, disclaimer]
+      properties:
+        answer: {type: string}
+        insufficientEvidence: {type: boolean}
+        citations:
+          type: array
+          items: {$ref: '#/components/schemas/Citation'}
+        disclaimer: {type: string, const: Synthetic demonstration only. Not engineering or maintenance advice.}
+    PageResponse:
+      type: object
+      required: [items, page, size, totalElements]
+      properties:
+        items: {type: array, items: {type: object}}
+        page: {type: integer, minimum: 0}
+        size: {type: integer, minimum: 1, maximum: 100}
+        totalElements: {type: integer, minimum: 0}
+    FieldErrors:
+      type: object
+      additionalProperties:
+        type: array
+        items: {type: string}
+    ApiError:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        requestId: {type: string}
+        fieldErrors:
+          anyOf:
+            - {$ref: '#/components/schemas/FieldErrors'}
+            - {type: 'null'}
+    HealthResponse:
+      type: object
+      required: [status, dependencies]
+      properties:
+        status: {type: string, enum: [UP, DEGRADED, DOWN]}
+        dependencies:
+          type: object
+          additionalProperties: {type: string, enum: [UP, DOWN, UNKNOWN]}
