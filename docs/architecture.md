@@ -24,4 +24,6 @@ All data and notes are generated or written as fictional demonstration material 
 - Analyze: Java API → Python scoring → PostgreSQL; results include method, version, threshold, and feature contributions.
 - Ask: browser → Java API → Python lexical retrieval; answers cite retrieved fictional note excerpts or state that the sources do not support an answer.
 
+Analysis runs execute synchronously over at most 10,000 selected stored cycles. The Java API saves the requested threshold and run status, sends feature vectors without ground-truth labels to Python, then stores scores and numerical explanations. If analytics is unavailable, the run is stored as `FAILED` with a safe summary and no result rows. Synthetic labels are loaded only for the run's separate evaluation request.
+
 See [ADR 0001](adr/0001-service-boundaries.md) for the Java/Python boundary and [the data dictionary](data-dictionary.md) for wire contracts.

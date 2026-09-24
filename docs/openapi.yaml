@@ -90,6 +90,95 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/CycleDetailResponse'}
         '404': {$ref: '#/components/responses/NotFound'}
+  /api/v1/analysis-runs:
+    post:
+      operationId: createAnalysisRun
+      description: Executes the synthetic robust-zscore workflow over selected stored cycles. The result is not engineering advice.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AnalysisRunRequest'}
+      responses:
+        '200':
+          description: Completed or failed synchronous analysis run status.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnalysisRunResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/v1/analysis-runs/{runId}:
+    get:
+      operationId: getAnalysisRun
+      parameters:
+        - {name: runId, in: path, required: true, schema: {$ref: '#/components/schemas/Uuid'}}
+      responses:
+        '200':
+          description: Persisted analysis run status and metadata.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnalysisRunResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/v1/analysis-runs/{runId}/results:
+    get:
+      operationId: getAnalysisResults
+      parameters:
+        - {name: runId, in: path, required: true, schema: {$ref: '#/components/schemas/Uuid'}}
+        - {name: flagged, in: query, schema: {type: boolean}}
+        - {name: page, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: size, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        '200':
+          description: Persisted scores and deterministic numerical explanations.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/PageResponse'}
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/AnalysisResultResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/v1/analysis-runs/{runId}/evaluation:
+    get:
+      operationId: evaluateAnalysisRun
+      description: Uses synthetic ground-truth labels only for offline evaluation of this run.
+      parameters:
+        - {name: runId, in: path, required: true, schema: {$ref: '#/components/schemas/Uuid'}}
+      responses:
+        '200':
+          description: Metrics over fictional generated data only.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EvaluationResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503':
+          description: Analytics service unavailable during synthetic evaluation.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ApiError'}
+  /api/v1/cycles/{cycleId}/analysis/latest:
+    get:
+      operationId: getLatestCycleAnalysis
+      parameters:
+        - {name: cycleId, in: path, required: true, schema: {$ref: '#/components/schemas/Uuid'}}
+      responses:
+        '200':
+          description: Latest persisted synthetic score and explanation for a cycle.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnalysisResultResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/v1/metrics/summary:
+    get:
+      operationId: getMetricsSummary
+      responses:
+        '200':
+          description: Synthetic dataset counts and descriptive measurement statistics.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MetricsSummaryResponse'}
   /api/v1/assistant/questions:
     post:
       operationId: askQuestion
@@ -292,6 +381,64 @@ components:
         results:
           type: array
           items: {$ref: '#/components/schemas/ScoredCycle'}
+    AnalysisRunRequest:
+      type: object
+      required: [modelName]
+      properties:
+        modelName: {type: string, const: robust-zscore}
+        rigId: {$ref: '#/components/schemas/Uuid'}
+        from: {$ref: '#/components/schemas/UtcInstant'}
+        to: {$ref: '#/components/schemas/UtcInstant'}
+        configuration:
+          type: object
+          properties:
+            threshold: {type: number, minimum: 0, maximum: 1, default: 0.65}
+    AnalysisRunResponse:
+      type: object
+      required: [id, startedAt, modelName, modelVersion, status, threshold, cycleCount]
+      properties:
+        id: {$ref: '#/components/schemas/Uuid'}
+        startedAt: {$ref: '#/components/schemas/UtcInstant'}
+        completedAt: {anyOf: [{$ref: '#/components/schemas/UtcInstant'}, {type: 'null'}]}
+        modelName: {type: string, const: robust-zscore}
+        modelVersion: {type: string}
+        status: {type: string, enum: [RUNNING, SUCCEEDED, FAILED]}
+        threshold: {type: number, minimum: 0, maximum: 1}
+        cycleCount: {type: integer, minimum: 0}
+        errorMessage: {type: [string, 'null']}
+    AnalysisResultResponse:
+      type: object
+      required: [id, analysisRunId, cycleId, score, threshold, isFlagged, explanation, createdAt]
+      properties:
+        id: {$ref: '#/components/schemas/Uuid'}
+        analysisRunId: {$ref: '#/components/schemas/Uuid'}
+        cycleId: {$ref: '#/components/schemas/Uuid'}
+        score: {type: number, minimum: 0, maximum: 1}
+        threshold: {type: number, minimum: 0, maximum: 1}
+        isFlagged: {type: boolean}
+        explanation: {$ref: '#/components/schemas/Explanation'}
+        createdAt: {$ref: '#/components/schemas/UtcInstant'}
+    MeasurementSummaryResponse:
+      type: object
+      required: [featureName, unit, sampleCount, average, minimum, maximum]
+      properties:
+        featureName: {type: string, enum: [extension_time_ms, pressure_kpa, vibration_rms, temperature_c, cycle_duration_ms]}
+        unit: {type: string}
+        sampleCount: {type: integer, minimum: 0}
+        average: {type: number}
+        minimum: {type: number}
+        maximum: {type: number}
+    MetricsSummaryResponse:
+      type: object
+      required: [totalCycles, analyzedCycles, flaggedCycles, measurements, disclaimer]
+      properties:
+        totalCycles: {type: integer, minimum: 0}
+        analyzedCycles: {type: integer, minimum: 0}
+        flaggedCycles: {type: integer, minimum: 0}
+        measurements:
+          type: array
+          items: {$ref: '#/components/schemas/MeasurementSummaryResponse'}
+        disclaimer: {type: string}
     EvaluationCycle:
       allOf:
         - {$ref: '#/components/schemas/CycleFeatures'}

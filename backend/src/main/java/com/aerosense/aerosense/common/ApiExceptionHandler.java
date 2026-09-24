@@ -1,5 +1,6 @@
 package com.aerosense.aerosense.common;
 
+import com.aerosense.aerosense.analysis.AnalyticsUnavailableException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,16 @@ public class ApiExceptionHandler {
             ? "The request could not be completed."
             : exception.getReason();
     return error(status, code, message, Map.of());
+  }
+
+  @ExceptionHandler(AnalyticsUnavailableException.class)
+  public ResponseEntity<ApiError> handleAnalyticsUnavailable(
+      AnalyticsUnavailableException exception) {
+    return error(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        "ANALYTICS_UNAVAILABLE",
+        "Synthetic analytics is temporarily unavailable.",
+        Map.of());
   }
 
   @ExceptionHandler(Exception.class)

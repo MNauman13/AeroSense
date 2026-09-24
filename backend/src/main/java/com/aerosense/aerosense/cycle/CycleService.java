@@ -1,9 +1,13 @@
 package com.aerosense.aerosense.cycle;
 
+import com.aerosense.aerosense.analysis.AnomalyResultRepository;
+import com.aerosense.aerosense.analysis.LatestCycleFlag;
 import com.aerosense.aerosense.common.PageResponse;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -21,14 +25,17 @@ public class CycleService {
   private final TestRigRepository rigRepository;
   private final TestCycleRepository cycleRepository;
   private final MeasurementRepository measurementRepository;
+  private final AnomalyResultRepository anomalyResultRepository;
 
   public CycleService(
       TestRigRepository rigRepository,
       TestCycleRepository cycleRepository,
-      MeasurementRepository measurementRepository) {
+      MeasurementRepository measurementRepository,
+      AnomalyResultRepository anomalyResultRepository) {
     this.rigRepository = rigRepository;
     this.cycleRepository = cycleRepository;
     this.measurementRepository = measurementRepository;
+    this.anomalyResultRepository = anomalyResultRepository;
   }
 
   public List<RigResponse> listRigs() {
@@ -46,13 +53,18 @@ public class CycleService {
     validateTimeRange(from, to);
     var pageable = PageRequest.of(page, size);
 
-    // Until Phase 7 creates analysis results, the flag state is unknown rather than false.
-    if (flagged != null) {
-      return new PageResponse<>(List.of(), page, size, 0);
-    }
-
-    Page<TestCycleEntity> cycles = cycleRepository.findFiltered(rigId, from, to, pageable);
-    List<CycleResponse> items = cycles.getContent().stream().map(this::toResponse).toList();
+    Page<TestCycleEntity> cycles = cycleRepository.findFiltered(rigId, from, to, flagged, pageable);
+    List<UUID> cycleIds = cycles.getContent().stream().map(TestCycleEntity::getId).toList();
+    Map<UUID, Boolean> latestFlags =
+        cycleIds.isEmpty()
+            ? Map.of()
+            : anomalyResultRepository.findLatestFlagsByCycleIds(cycleIds).stream()
+                .collect(
+                    Collectors.toMap(LatestCycleFlag::getCycleId, LatestCycleFlag::getIsFlagged));
+    List<CycleResponse> items =
+        cycles.getContent().stream()
+            .map(cycle -> toResponse(cycle, latestFlags.get(cycle.getId())))
+            .toList();
     return new PageResponse<>(items, page, size, cycles.getTotalElements());
   }
 
@@ -74,24 +86,38 @@ public class CycleService {
                         measurement.getUnit(),
                         measurement.getMeasuredAt()))
             .toList();
+    Boolean latestFlag =
+        anomalyResultRepository
+            .findFirstByTestCycle_IdOrderByCreatedAtDesc(cycleId)
+            .map(result -> result.isFlagged())
+            .orElse(null);
     return new CycleDetailResponse(
         cycle.getId(),
         cycle.getCycleCode(),
         cycle.getRig().getId(),
         cycle.getRecordedAt(),
         cycle.getCycleType(),
-        null,
+        latestFlag,
         measurements);
   }
 
   private CycleResponse toResponse(TestCycleEntity cycle) {
+    Boolean latestFlag =
+        anomalyResultRepository
+            .findFirstByTestCycle_IdOrderByCreatedAtDesc(cycle.getId())
+            .map(result -> result.isFlagged())
+            .orElse(null);
+    return toResponse(cycle, latestFlag);
+  }
+
+  private CycleResponse toResponse(TestCycleEntity cycle, Boolean latestFlag) {
     return new CycleResponse(
         cycle.getId(),
         cycle.getCycleCode(),
         cycle.getRig().getId(),
         cycle.getRecordedAt(),
         cycle.getCycleType(),
-        null);
+        latestFlag);
   }
 
   private void validatePage(int page, int size) {

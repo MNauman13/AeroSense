@@ -115,6 +115,21 @@ Scores, threshold, and contributions are synthetic cohort-relative software outp
 
 Evaluation returns `totalCycles`, `truePositives`, `falsePositives`, `trueNegatives`, `falseNegatives`, `precision`, `recall`, and `f1`. Zero-denominator metrics are `0.0`; these numbers describe only the generated synthetic dataset.
 
+## Stored analysis run
+
+`POST /api/v1/analysis-runs` runs the baseline over locally stored synthetic cycles. A rig and UTC time range can narrow the cohort; `threshold` defaults to `0.65`.
+
+```json
+{
+  "modelName": "robust-zscore",
+  "configuration": {"threshold": 0.65}
+}
+```
+
+The response includes the run ID, status, selected cycle count, model version, and threshold. A successful run stores each result and its explanation. Use `GET /api/v1/analysis-runs/{runId}/results` to page through those results, `GET /api/v1/analysis-runs/{runId}/evaluation` for synthetic-only metrics, or `GET /api/v1/cycles/{cycleId}/analysis/latest` for the latest result on one cycle. Ground-truth labels are sent to Python only for evaluation.
+
+`GET /api/v1/metrics/summary` reports dataset counts and descriptive statistics for the synthetic measurement summaries. These values are not engineering limits or safety advice.
+
 ## Pagination and errors
 
 ```json

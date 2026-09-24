@@ -90,6 +90,37 @@ export interface ScoreResponse {
   results: ScoredCycle[];
 }
 
+export interface AnalysisRunRequest {
+  modelName: "robust-zscore";
+  rigId?: UUID;
+  from?: UtcInstant;
+  to?: UtcInstant;
+  configuration?: { threshold?: number };
+}
+
+export interface AnalysisRunResponse {
+  id: UUID;
+  startedAt: UtcInstant;
+  completedAt: UtcInstant | null;
+  modelName: string;
+  modelVersion: string;
+  status: "RUNNING" | "SUCCEEDED" | "FAILED";
+  threshold: number;
+  cycleCount: number;
+  errorMessage: string | null;
+}
+
+export interface AnalysisResultResponse {
+  id: UUID;
+  analysisRunId: UUID;
+  cycleId: UUID;
+  score: number;
+  threshold: number;
+  isFlagged: boolean;
+  explanation: Explanation;
+  createdAt: UtcInstant;
+}
+
 export interface EvaluationResponse {
   modelName: "robust-zscore";
   modelVersion: string;
@@ -101,6 +132,23 @@ export interface EvaluationResponse {
   precision: number;
   recall: number;
   f1: number;
+  disclaimer: string;
+}
+
+export interface MeasurementSummaryResponse {
+  featureName: FeatureName;
+  unit: string;
+  sampleCount: number;
+  average: number;
+  minimum: number;
+  maximum: number;
+}
+
+export interface MetricsSummaryResponse {
+  totalCycles: number;
+  analyzedCycles: number;
+  flaggedCycles: number;
+  measurements: MeasurementSummaryResponse[];
   disclaimer: string;
 }
 
