@@ -1,0 +1,26 @@
+server:
+  port: ${BACKEND_PORT:8080}
+
+spring:
+  profiles:
+    default: local
+  application:
+    name: aerosense-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/aerosense}
+    username: ${DATABASE_USERNAME:aerosense_app}
+    password: ${DATABASE_PASSWORD:synthetic-app-local-only}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+aerosense:
+  analytics-url: ${ANALYTICS_URL:http://localhost:8000}
+  retrieval-url: ${RETRIEVAL_URL:http://localhost:8000}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

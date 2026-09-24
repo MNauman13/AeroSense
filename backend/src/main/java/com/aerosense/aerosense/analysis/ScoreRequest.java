@@ -1,5 +1,11 @@
 package com.aerosense.aerosense.analysis;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
-public record ScoreRequest(Double threshold, List<FeatureVector> cycles) {}
+public record ScoreRequest(
+    @DecimalMin("0.0") @DecimalMax("1.0") Double threshold,
+    @NotEmpty List<@Valid FeatureVector> cycles) {}

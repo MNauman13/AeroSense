@@ -1,6 +1,7 @@
 # Java / Maven
 target/
 *.class
+backend/.m2/
 
 # Python
 __pycache__/
@@ -9,6 +10,8 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+*.egg-info/
+analytics/pytest-cache-files-*/
 
 # Node / Vite
 node_modules/

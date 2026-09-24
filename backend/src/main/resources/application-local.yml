@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  flyway:
+    locations: classpath:db/migration
+
+logging:
+  level:
+    com.aerosense: INFO

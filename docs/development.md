@@ -18,7 +18,7 @@ All example data, measurements, limits, rig descriptions, and reference notes ar
 - Python: Ruff for formatting and linting; pytest for tests.
 - TypeScript: Prettier and ESLint; the frontend type-check is a separate check.
 
-Tool configuration and runnable commands are added with the corresponding service phase. Do not claim a check passes until its command has been run.
+The Java service uses Java 21 with Spring Boot 3.5.16. In `backend/`, run `mvn spotless:check test`; use `mvn spotless:apply` to format Java sources. In `analytics/`, run `uv sync --group dev`, `uv run ruff check app tests`, `uv run ruff format --check app tests`, and `uv run pytest`. Frontend commands will be added when the client is scaffolded. Do not claim a check passes until its command has been run.
 
 ## Change workflow
 
