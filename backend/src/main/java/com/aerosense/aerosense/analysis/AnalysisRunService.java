@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class AnalysisRunService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(AnalysisRunService.class);
   private static final String MODEL_NAME = "robust-zscore";
   private static final double DEFAULT_THRESHOLD = 0.65;
   private static final int MAX_ANALYSIS_CYCLES = 10_000;
@@ -116,6 +119,7 @@ public class AnalysisRunService {
       scored = analyticsClient.score(new ScoreRequest(threshold, vectors));
       validateScoreResponse(scored, cycles, threshold);
     } catch (AnalyticsUnavailableException | IllegalStateException exception) {
+      LOGGER.warn("Synthetic analysis run {} failed.", runId, exception);
       run.fail(
           Instant.now(),
           "Synthetic analysis failed because analytics was unavailable or returned invalid results.");

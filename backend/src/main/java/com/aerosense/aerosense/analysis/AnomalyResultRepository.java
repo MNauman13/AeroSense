@@ -40,9 +40,9 @@ public interface AnomalyResultRepository extends JpaRepository<AnomalyResultEnti
       """
       select count(distinct result.testCycle.id) from AnomalyResultEntity result
       where result.analysisRun.status = 'SUCCEEDED'
-        and (:rigId is null or result.testCycle.rig.id = :rigId)
-        and (:fromTime is null or result.testCycle.recordedAt >= :fromTime)
-        and (:toTime is null or result.testCycle.recordedAt <= :toTime)
+        and result.testCycle.rig.id = coalesce(:rigId, result.testCycle.rig.id)
+        and result.testCycle.recordedAt >= coalesce(:fromTime, result.testCycle.recordedAt)
+        and result.testCycle.recordedAt <= coalesce(:toTime, result.testCycle.recordedAt)
       """)
   long countAnalyzedCycles(
       @Param("rigId") UUID rigId,
@@ -53,9 +53,9 @@ public interface AnomalyResultRepository extends JpaRepository<AnomalyResultEnti
       """
       select count(distinct result.testCycle.id) from AnomalyResultEntity result
       where result.isFlagged = true
-        and (:rigId is null or result.testCycle.rig.id = :rigId)
-        and (:fromTime is null or result.testCycle.recordedAt >= :fromTime)
-        and (:toTime is null or result.testCycle.recordedAt <= :toTime)
+        and result.testCycle.rig.id = coalesce(:rigId, result.testCycle.rig.id)
+        and result.testCycle.recordedAt >= coalesce(:fromTime, result.testCycle.recordedAt)
+        and result.testCycle.recordedAt <= coalesce(:toTime, result.testCycle.recordedAt)
         and result.createdAt = (
         select max(latest.createdAt) from AnomalyResultEntity latest
         where latest.testCycle.id = result.testCycle.id

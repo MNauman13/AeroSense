@@ -26,7 +26,11 @@ public class AnalyticsClientConfiguration {
 
   private RestClient configuredClient(
       RestClient.Builder builder, String serviceUrl, Duration readTimeout) {
-    HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+    HttpClient httpClient =
+        HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(3))
+            .version(HttpClient.Version.HTTP_1_1)
+            .build();
     JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
     requestFactory.setReadTimeout(readTimeout);
     return builder.baseUrl(serviceUrl).requestFactory(requestFactory).build();

@@ -13,9 +13,9 @@ public interface TestCycleRepository extends JpaRepository<TestCycleEntity, UUID
   @Query(
       """
       select c from TestCycleEntity c
-      where (:rigId is null or c.rig.id = :rigId)
-        and (:fromTime is null or c.recordedAt >= :fromTime)
-        and (:toTime is null or c.recordedAt <= :toTime)
+      where c.rig.id = coalesce(:rigId, c.rig.id)
+        and c.recordedAt >= coalesce(:fromTime, c.recordedAt)
+        and c.recordedAt <= coalesce(:toTime, c.recordedAt)
         and (:flagged is null or exists (
           select result.id from AnomalyResultEntity result
           where result.testCycle = c and result.isFlagged = :flagged
@@ -36,9 +36,9 @@ public interface TestCycleRepository extends JpaRepository<TestCycleEntity, UUID
   @Query(
       """
       select count(c) from TestCycleEntity c
-      where (:rigId is null or c.rig.id = :rigId)
-        and (:fromTime is null or c.recordedAt >= :fromTime)
-        and (:toTime is null or c.recordedAt <= :toTime)
+      where c.rig.id = coalesce(:rigId, c.rig.id)
+        and c.recordedAt >= coalesce(:fromTime, c.recordedAt)
+        and c.recordedAt <= coalesce(:toTime, c.recordedAt)
       """)
   long countFiltered(
       @Param("rigId") UUID rigId,

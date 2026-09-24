@@ -21,9 +21,9 @@ public interface MeasurementRepository extends JpaRepository<MeasurementEntity, 
       select m.featureName as featureName, m.unit as unit, count(m.id) as sampleCount,
         avg(m.value) as average, min(m.value) as minimum, max(m.value) as maximum
       from MeasurementEntity m
-      where (:rigId is null or m.cycle.rig.id = :rigId)
-        and (:fromTime is null or m.cycle.recordedAt >= :fromTime)
-        and (:toTime is null or m.cycle.recordedAt <= :toTime)
+      where m.cycle.rig.id = coalesce(:rigId, m.cycle.rig.id)
+        and m.cycle.recordedAt >= coalesce(:fromTime, m.cycle.recordedAt)
+        and m.cycle.recordedAt <= coalesce(:toTime, m.cycle.recordedAt)
       group by m.featureName, m.unit order by m.featureName
       """)
   List<MeasurementAggregate> summarizeByFeature(
@@ -37,9 +37,9 @@ public interface MeasurementRepository extends JpaRepository<MeasurementEntity, 
         m.cycle.recordedAt as recordedAt, m.value as value
       from MeasurementEntity m
       where m.featureName = :featureName
-        and (:rigId is null or m.cycle.rig.id = :rigId)
-        and (:fromTime is null or m.cycle.recordedAt >= :fromTime)
-        and (:toTime is null or m.cycle.recordedAt <= :toTime)
+        and m.cycle.rig.id = coalesce(:rigId, m.cycle.rig.id)
+        and m.cycle.recordedAt >= coalesce(:fromTime, m.cycle.recordedAt)
+        and m.cycle.recordedAt <= coalesce(:toTime, m.cycle.recordedAt)
       order by m.cycle.recordedAt desc, m.cycle.cycleCode asc
       """)
   List<MeasurementTrendProjection> findTrend(
