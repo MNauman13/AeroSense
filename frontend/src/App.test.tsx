@@ -180,6 +180,12 @@ describe("AeroSense dashboard", () => {
 
     expect(await screen.findByText("CYC-000101")).toBeInTheDocument();
     expect(
+      screen.getByRole("heading", { name: "What am I looking at?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Status filters the cycle list only/),
+    ).toBeInTheDocument();
+    expect(
       screen.getByText("Synthetic demonstration data"),
     ).toBeInTheDocument();
     expect(screen.getAllByText("1,000")).toHaveLength(2);
@@ -187,11 +193,11 @@ describe("AeroSense dashboard", () => {
       screen.getByRole("img", { name: /vibration rms trend/i }),
     ).toBeInTheDocument();
     expect(
-      await screen.findByText("Numerical contributions"),
+      await screen.findByText("Which readings set the score?"),
     ).toBeInTheDocument();
     expect(screen.getByText("0.812")).toBeInTheDocument();
     expect(
-      screen.getByText("Not an engineering limit or safety threshold."),
+      screen.getByText("A demo setting, not an engineering limit."),
     ).toBeInTheDocument();
   });
 
@@ -216,9 +222,9 @@ describe("AeroSense dashboard", () => {
     fireEvent.change(input, {
       target: { value: "What does the review note say?" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Find evidence" }));
+    fireEvent.click(screen.getByRole("button", { name: "Search notes" }));
 
-    expect(await screen.findByText("Evidence found")).toBeInTheDocument();
+    expect(await screen.findByText("Supported by notes")).toBeInTheDocument();
     expect(screen.getByText("demo-note-02#chunk-01")).toBeInTheDocument();
     expect(api.askQuestion).toHaveBeenCalledWith({
       question: "What does the review note say?",
@@ -242,7 +248,7 @@ describe("AeroSense dashboard", () => {
       "Summary service offline",
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Test cycle intelligence",
+      "Explore fictional system test data",
     );
   });
 });

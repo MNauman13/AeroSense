@@ -22,9 +22,10 @@ export function TrendChart({ trend, loading }: TrendChartProps) {
         <span className="empty-mark" aria-hidden="true">
           ↗
         </span>
-        <strong>No measurements in this selection</strong>
+        <strong>No readings found for these filters</strong>
         <span>
-          Choose another rig or date range to see generated cycle data.
+          Try another rig or date range. The chart uses the selected measurement
+          from matching cycles.
         </span>
       </div>
     );

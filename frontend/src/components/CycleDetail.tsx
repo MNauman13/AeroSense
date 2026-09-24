@@ -19,6 +19,14 @@ const featureLabels: Record<FeatureName, string> = {
   cycle_duration_ms: "Cycle duration",
 };
 
+const featureUnits: Record<FeatureName, string> = {
+  extension_time_ms: "ms",
+  pressure_kpa: "kPa",
+  vibration_rms: "g_rms",
+  temperature_c: "°C",
+  cycle_duration_ms: "ms",
+};
+
 export function CycleDetail({
   cycle,
   analysis,
@@ -39,10 +47,10 @@ export function CycleDetail({
             }
           >
             {cycle.isFlagged === null
-              ? "Not analyzed"
+              ? "No saved score"
               : cycle.isFlagged
-                ? "Flagged"
-                : "Within cohort"}
+                ? "At or above threshold"
+                : "Below threshold"}
           </span>
         )}
       </div>
@@ -51,7 +59,7 @@ export function CycleDetail({
       {!loading && error && <div className="inline-error">{error}</div>}
       {!loading && !error && !cycle && (
         <div className="panel-state">
-          Select a cycle to inspect its synthetic readings.
+          Choose a cycle in the list to see its generated readings and score.
         </div>
       )}
       {!loading && cycle && (
@@ -59,7 +67,11 @@ export function CycleDetail({
           <div className="cycle-identity">
             <div>
               <strong>{cycle.cycleCode}</strong>
-              <span>{cycle.cycleType.replaceAll("-", " ")}</span>
+              <span>
+                {cycle.cycleType
+                  .replaceAll("synthetic-", "")
+                  .replaceAll("-", " ")}
+              </span>
             </div>
             <time dateTime={cycle.recordedAt}>
               {new Intl.DateTimeFormat("en-GB", {
@@ -72,28 +84,42 @@ export function CycleDetail({
           </div>
 
           {analysis ? (
-            <div className="analysis-summary">
-              <div className="score-block">
-                <span className="eyebrow">SYNTHETIC COHORT SCORE</span>
-                <strong>{analysis.score.toFixed(3)}</strong>
+            <>
+              <div className="analysis-summary">
+                <div className="score-block">
+                  <span className="eyebrow">SOFTWARE COMPARISON SCORE</span>
+                  <strong>{analysis.score.toFixed(3)}</strong>
+                  <small>on a 0–1 scale; not a probability</small>
+                </div>
+                <div className="score-context">
+                  <span>
+                    {analysis.isFlagged
+                      ? "This score met this run’s threshold"
+                      : "This score stayed below this run’s threshold"}
+                  </span>
+                  <strong>Threshold {analysis.threshold.toFixed(2)}</strong>
+                  <small>A demo setting, not an engineering limit.</small>
+                </div>
               </div>
-              <div className="score-context">
-                <span>
-                  {analysis.isFlagged
-                    ? "Met the software threshold"
-                    : "Below the software threshold"}
-                </span>
-                <strong>Threshold {analysis.threshold.toFixed(2)}</strong>
-                <small>Not an engineering limit or safety threshold.</small>
-              </div>
-            </div>
+              <p className="score-explanation">
+                The score summarizes the largest difference among this cycle’s
+                readings compared with the cycles analyzed in the same run. A
+                flag means “different in this comparison group”; it does not
+                indicate a cause, fault, or safety condition.
+              </p>
+            </>
           ) : (
             <div className="no-analysis-note">
-              No saved synthetic analysis result exists for this cycle yet.
+              This cycle has no saved score yet. Use “Score selected cycles”
+              above to calculate scores for the selected rig and dates.
             </div>
           )}
 
           <h3 className="subsection-heading">Measurement summary</h3>
+          <p className="muted-note">
+            These are the generated readings for this test cycle. The unit is
+            shown beside each value.
+          </p>
           <div className="measurement-table-wrap">
             <table className="compact-table">
               <thead>
@@ -124,20 +150,26 @@ export function CycleDetail({
           {analysis && (
             <>
               <h3 className="subsection-heading explanation-heading">
-                Numerical contributions
+                Which readings set the score?
               </h3>
               <p className="muted-note">
-                Associations from the score calculation; they do not show cause.
+                Each index compares a reading with the median (middle value) of
+                this run’s comparison group. The highest index sets the score;
+                100 is the scale limit. Distance is measured relative to the
+                group’s typical variation, and does not explain a physical
+                cause.
               </p>
               <div className="contribution-list">
                 {analysis.explanation.features.map((feature) => (
                   <div className="contribution-row" key={feature.featureName}>
                     <div className="contribution-title">
                       <strong>{featureLabels[feature.featureName]}</strong>
-                      <span>{(feature.contribution * 100).toFixed(0)}%</span>
+                      <span>
+                        Index {(feature.contribution * 100).toFixed(0)} / 100
+                      </span>
                     </div>
                     <div
-                      aria-label={`${featureLabels[feature.featureName]} contribution ${(feature.contribution * 100).toFixed(0)} percent`}
+                      aria-label={`${featureLabels[feature.featureName]} deviation index ${(feature.contribution * 100).toFixed(0)} out of 100`}
                       className="contribution-track"
                       role="img"
                     >
@@ -146,8 +178,17 @@ export function CycleDetail({
                       />
                     </div>
                     <div className="contribution-values">
-                      <span>Observed {feature.observedValue.toFixed(3)}</span>
-                      <span>Robust z {feature.robustZScore.toFixed(2)}</span>
+                      <span>
+                        Reading {feature.observedValue.toFixed(3)}{" "}
+                        {featureUnits[feature.featureName]}
+                      </span>
+                      <span>
+                        Group median {feature.baselineMedian.toFixed(3)}{" "}
+                        {featureUnits[feature.featureName]}
+                      </span>
+                      <span>
+                        Distance {feature.robustZScore.toFixed(2)} spread units
+                      </span>
                     </div>
                   </div>
                 ))}

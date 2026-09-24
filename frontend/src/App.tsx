@@ -60,14 +60,14 @@ function asCycleFilters(filters: FilterState): CycleFilters {
 
 function StatusText({ cycle }: { cycle: CycleResponse }) {
   if (cycle.isFlagged === null)
-    return <span className="table-status status-unknown">Not analyzed</span>;
+    return <span className="table-status status-unknown">No saved score</span>;
   return cycle.isFlagged ? (
     <span className="table-status status-flagged">
       <i aria-hidden="true" /> Flagged
     </span>
   ) : (
     <span className="table-status status-clear">
-      <i aria-hidden="true" /> Not flagged
+      <i aria-hidden="true" /> Below threshold
     </span>
   );
 }
@@ -344,11 +344,11 @@ export default function App() {
 
           <section className="page-heading">
             <div>
-              <span className="eyebrow">AEROSENSE / SYSTEM OVERVIEW</span>
-              <h1>Test cycle intelligence</h1>
+              <span className="eyebrow">AEROSENSE / SOFTWARE DEMO</span>
+              <h1>Explore fictional system test data</h1>
               <p>
-                Explore generated test data, review cohort-relative results, and
-                inspect the evidence.
+                See how a prototype can filter generated test runs, compare
+                readings, highlight unusual values, and search supporting notes.
               </p>
             </div>
             <div className="heading-actions">
@@ -362,15 +362,75 @@ export default function App() {
                   </small>
                 </div>
               )}
-              <button
-                className="button button-primary"
-                disabled={running || noCycles}
-                onClick={startAnalysis}
-              >
-                <span aria-hidden="true">{running ? "◌" : "▶"}</span>
-                {running ? "Scoring synthetic data…" : "Run synthetic analysis"}
-              </button>
+              <div className="analysis-action">
+                <button
+                  className="button button-primary"
+                  disabled={running || noCycles}
+                  onClick={startAnalysis}
+                  title="Scores every cycle matching the selected rig and dates."
+                >
+                  <span aria-hidden="true">{running ? "◌" : "▶"}</span>
+                  {running ? "Scoring this group…" : "Score selected cycles"}
+                </button>
+                <small>Uses the selected rig and dates.</small>
+              </div>
             </div>
+          </section>
+
+          <section
+            aria-labelledby="start-here-heading"
+            className="orientation-panel"
+          >
+            <div className="orientation-intro">
+              <span className="eyebrow">START HERE</span>
+              <h2 id="start-here-heading">What am I looking at?</h2>
+              <p>
+                AeroSense demonstrates a review workflow: filter fictional test
+                runs, compare readings, inspect unusual-value scores, and look
+                up what the included notes say. The data and equipment are made
+                up; this prototype does not assess a real aircraft or system.
+              </p>
+            </div>
+            <ol className="workflow-steps">
+              <li>
+                <span className="step-number">1</span>
+                <div>
+                  <strong>Choose a comparison group</strong>
+                  <p>
+                    Pick a rig and date range. Together they define which cycles
+                    are compared. Status filters the cycle list only.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span className="step-number">2</span>
+                <div>
+                  <strong>Review readings and scores</strong>
+                  <p>
+                    Click “Score selected cycles” to score every cycle in this
+                    rig/date group. A 0–1 score summarizes the biggest
+                    difference from the group; 0.65 is the default flag
+                    threshold. Select a cycle to inspect its readings.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span className="step-number">3</span>
+                <div>
+                  <strong>Ask about the notes</strong>
+                  <p>
+                    Search the included fictional notes. Answers quote the
+                    passages they use or say when the notes do not support an
+                    answer.
+                  </p>
+                </div>
+              </li>
+            </ol>
+            <p className="orientation-note">
+              A comparison group is just the set of cycles currently selected.
+              Scores and flags are software demo output, not validated limits,
+              maintenance instructions, or safety advice.
+            </p>
           </section>
 
           {(notice || dashboardError || rigError) && (
@@ -408,7 +468,10 @@ export default function App() {
               <span className="filter-glyph" aria-hidden="true">
                 ⌕
               </span>
-              <strong>Filter dataset</strong>
+              <div>
+                <strong>Choose the cycles to review</strong>
+                <small>Rig and dates also define the next scoring group.</small>
+              </div>
             </div>
             <label className="filter-field">
               <span>Test rig</span>
@@ -426,7 +489,7 @@ export default function App() {
               </select>
             </label>
             <label className="filter-field">
-              <span>From date · UTC</span>
+              <span>Start date · UTC</span>
               <input
                 aria-label="From date"
                 onChange={(event) => updateFilter("from", event.target.value)}
@@ -435,7 +498,7 @@ export default function App() {
               />
             </label>
             <label className="filter-field">
-              <span>To date · UTC</span>
+              <span>End date · UTC</span>
               <input
                 aria-label="To date"
                 onChange={(event) => updateFilter("to", event.target.value)}
@@ -444,7 +507,7 @@ export default function App() {
               />
             </label>
             <label className="filter-field filter-field-status">
-              <span>Anomaly status</span>
+              <span>Score status · cycle list only</span>
               <select
                 aria-label="Anomaly status"
                 onChange={(event) =>
@@ -468,7 +531,7 @@ export default function App() {
               }}
               type="button"
             >
-              Clear
+              Reset filters
             </button>
           </section>
 
@@ -478,27 +541,27 @@ export default function App() {
           >
             <MetricCard
               accent="mark-cyan"
-              label="Total cycles"
+              label="Matching test cycles"
               value={formatCount(summary?.totalCycles)}
-              detail="In current rig and date selection"
+              detail="Cycles in the selected rig and dates"
             />
             <MetricCard
               accent="mark-blue"
-              label="Analyzed cycles"
+              label="Scored cycles"
               value={formatCount(summary?.analyzedCycles)}
-              detail="With a saved synthetic score"
+              detail="Have a saved software score"
             />
             <MetricCard
               accent="mark-amber"
               label="Flagged cycles"
               value={formatCount(summary?.flaggedCycles)}
-              detail="Latest stored analysis per cycle"
+              detail="Latest saved score met its run’s threshold"
             />
             <MetricCard
               accent="mark-purple"
               label="Synthetic rigs"
               value={formatCount(rigs.length)}
-              detail="Fictional test fixtures"
+              detail="Fictional sources of generated cycles"
             />
           </section>
 
@@ -509,7 +572,7 @@ export default function App() {
             >
               <div className="panel-heading">
                 <div>
-                  <span className="eyebrow">MEASUREMENT EXPLORER</span>
+                  <span className="eyebrow">COMPARE READINGS OVER TIME</span>
                   <h2 id="trend-heading">Measurement trend</h2>
                 </div>
                 <label className="chart-select">
@@ -534,10 +597,16 @@ export default function App() {
                     ?.label
                 }
               </div>
+              <p className="panel-explainer">
+                Each point is one generated test cycle. The vertical scale is
+                the selected measurement and unit; dates run left to right. The
+                chart shows up to 200 recent cycles in the selected rig and
+                dates.
+              </p>
               <TrendChart loading={loading} trend={trend} />
               <div className="trend-disclaimer">
-                Generated values shown for software demonstration. No real
-                aircraft measurements.
+                A high or low point is only a difference in this synthetic
+                dataset; it is not a warning by itself.
               </div>
             </section>
 
@@ -548,13 +617,18 @@ export default function App() {
             >
               <div className="panel-heading cycle-heading-row">
                 <div>
-                  <span className="eyebrow">CYCLE REGISTER</span>
+                  <span className="eyebrow">BROWSE INDIVIDUAL TEST RUNS</span>
                   <h2 id="cycle-heading">Test cycles</h2>
                 </div>
                 <span className="row-count">
-                  {formatCount(cyclePage?.totalElements)} records
+                  {formatCount(cyclePage?.totalElements)} cycles
                 </span>
               </div>
+              <p className="panel-explainer cycle-explainer">
+                One row is one fictional test run. Select its cycle ID to see
+                the readings and score details. “Flagged” means the score met
+                the software threshold; “Below threshold” means it did not.
+              </p>
               {loading && !cyclePage && (
                 <div className="panel-state">Loading synthetic cycles…</div>
               )}
@@ -628,7 +702,9 @@ export default function App() {
                               }).format(new Date(cycle.recordedAt))}
                             </td>
                             <td className="cycle-type-cell">
-                              {cycle.cycleType.replaceAll("synthetic-", "")}
+                              {cycle.cycleType
+                                .replaceAll("synthetic-", "")
+                                .replaceAll("-", " ")}
                             </td>
                             <td>
                               <StatusText cycle={cycle} />

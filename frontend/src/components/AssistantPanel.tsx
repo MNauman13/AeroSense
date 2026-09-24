@@ -39,16 +39,21 @@ export function AssistantPanel({ cycleId, cycleCode }: AssistantPanelProps) {
     >
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">REFERENCE NOTES</span>
-          <h2 id="assistant-heading">Ask a focused question</h2>
+          <span className="eyebrow">FICTIONAL REFERENCE NOTES</span>
+          <h2 id="assistant-heading">Ask about the included notes</h2>
         </div>
         <span className="local-badge">
-          <span aria-hidden="true">●</span> Local retrieval
+          <span aria-hidden="true">●</span> Uses demo notes only
         </span>
       </div>
       <p className="assistant-intro">
-        Answers quote fictional demo notes and saved synthetic cycle context. No
-        external model is required.
+        This panel searches the fictional notes included with the demo. If a
+        cycle is selected, its saved score is also sent as context. Answers cite
+        the note excerpts they use; if a note does not support your question,
+        the app says so.
+      </p>
+      <p className="assistant-example">
+        Try: “What should I compare in the synthetic example?”
       </p>
       <form className="question-form" onSubmit={submitQuestion}>
         <label className="sr-only" htmlFor="assistant-question">
@@ -78,7 +83,7 @@ export function AssistantPanel({ cycleId, cycleCode }: AssistantPanelProps) {
             disabled={loading || !question.trim()}
             type="submit"
           >
-            {loading ? "Searching notes…" : "Find evidence"}
+            {loading ? "Searching notes…" : "Search notes"}
             {!loading && <span aria-hidden="true">↗</span>}
           </button>
         </div>
@@ -100,13 +105,13 @@ export function AssistantPanel({ cycleId, cycleCode }: AssistantPanelProps) {
               }
             />
             {answer.insufficientEvidence
-              ? "Insufficient evidence"
-              : "Evidence found"}
+              ? "Not enough support in notes"
+              : "Supported by notes"}
           </div>
           <p>{answer.answer}</p>
           {answer.citations.length > 0 && (
             <div className="citation-list">
-              <span className="citation-label">CITED SYNTHETIC SOURCES</span>
+              <span className="citation-label">NOTES USED FOR THIS ANSWER</span>
               {answer.citations.map((citation) => (
                 <blockquote className="citation" key={citation.sourceId}>
                   <strong>{citation.title}</strong>
