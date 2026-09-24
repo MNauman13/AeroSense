@@ -35,6 +35,7 @@ Explanations list feature name, observed value, cohort median, signed robust z-s
 
 - Public Java API routes use `/api/v1`; Python service routes use `/v1` (health uses `/health`).
 - List pagination is zero-based: `page` defaults to 0; `size` defaults to 20 and must be 1–100. Responses have `items`, `page`, `size`, `totalElements`.
+- Until a completed analysis is stored, cycle `isFlagged` is `null` and a `flagged` filter returns an empty page. Ground-truth labels never determine that filter.
 - Date filters are optional UTC instants; `from` must be less than or equal to `to`. Missing optional filters are omitted, never represented by an empty string.
 - JSON required fields are non-null. The only defined nullable response field is cycle `isFlagged` before the first analysis; optional request fields may be omitted. Invalid or missing required feature values are validation errors; there is no silent default or imputation.
 - Errors have `code`, safe human-readable `message`, `requestId`, and optional `fieldErrors` (field name to list of messages). No stack trace or credential is returned.

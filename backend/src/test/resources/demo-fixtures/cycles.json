@@ -1,0 +1,17 @@
+[
+  {
+    "id": "00000000-0000-4000-8000-000000000101",
+    "cycleCode": "CYC-000001",
+    "rigId": "00000000-0000-4000-8000-000000000001",
+    "recordedAt": "2026-01-01T00:00:00.000Z",
+    "cycleType": "synthetic-extension-check",
+    "syntheticLabel": true,
+    "features": {
+      "extension_time_ms": 181.2,
+      "pressure_kpa": 1002.4,
+      "vibration_rms": 0.29,
+      "temperature_c": 24.3,
+      "cycle_duration_ms": 2794.0
+    }
+  }
+]

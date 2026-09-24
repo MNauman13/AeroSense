@@ -2,6 +2,19 @@
 
 These examples define wire names shared by the Java API, Python services, and TypeScript client. Every identifier, reading, score, note, and citation excerpt shown is fictional.
 
+## Seed response
+
+`POST /api/v1/demo-data/seed` loads the generated local JSON fixtures once. Repeated calls return the existing counts without creating duplicate records.
+
+```json
+{
+  "seeded": true,
+  "rigCount": 3,
+  "cycleCount": 1000,
+  "syntheticNotice": "Synthetic demonstration only. Not engineering or maintenance advice."
+}
+```
+
 ## Rig and cycle
 
 ```json

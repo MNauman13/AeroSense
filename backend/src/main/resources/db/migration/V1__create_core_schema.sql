@@ -27,8 +27,8 @@ CREATE TABLE measurement (
             'cycle_duration_ms'
         )
     ),
-    value DOUBLE PRECISION NOT NULL CHECK (
-        value > '-Infinity'::DOUBLE PRECISION AND value < 'Infinity'::DOUBLE PRECISION
+    "value" DOUBLE PRECISION NOT NULL CHECK (
+        "value" > '-Infinity'::DOUBLE PRECISION AND "value" < 'Infinity'::DOUBLE PRECISION
     ),
     unit VARCHAR(24) NOT NULL,
     measured_at TIMESTAMPTZ NOT NULL,

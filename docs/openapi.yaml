@@ -21,6 +21,17 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/HealthResponse'}
+  /api/v1/demo-data/seed:
+    post:
+      operationId: seedDemoData
+      description: Idempotently load local synthetic fixture files; this route is intended for the local demo.
+      responses:
+        '200':
+          description: Counts and synthetic notice after seeding or confirming existing data.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DemoSeedResponse'}
+        '409': {$ref: '#/components/responses/Conflict'}
   /api/v1/rigs:
     get:
       operationId: listRigs
@@ -150,6 +161,11 @@ components:
       content:
         application/json:
           schema: {$ref: '#/components/schemas/ApiError'}
+    Conflict:
+      description: Demo data is partially seeded or conflicts with existing data.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiError'}
   schemas:
     Uuid:
       type: string
@@ -176,6 +192,14 @@ components:
         id: {$ref: '#/components/schemas/Uuid'}
         rigCode: {type: string, example: RIG-SYN-01}
         description: {type: string, description: Must identify a fictional synthetic rig.}
+        syntheticNotice: {type: string}
+    DemoSeedResponse:
+      type: object
+      required: [seeded, rigCount, cycleCount, syntheticNotice]
+      properties:
+        seeded: {type: boolean}
+        rigCount: {type: integer, minimum: 0}
+        cycleCount: {type: integer, minimum: 0}
         syntheticNotice: {type: string}
     CycleResponse:
       type: object

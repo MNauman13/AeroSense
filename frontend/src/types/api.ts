@@ -23,6 +23,13 @@ export interface RigResponse {
   syntheticNotice: string;
 }
 
+export interface DemoSeedResponse {
+  seeded: boolean;
+  rigCount: number;
+  cycleCount: number;
+  syntheticNotice: string;
+}
+
 export interface CycleResponse {
   id: UUID;
   cycleCode: string;

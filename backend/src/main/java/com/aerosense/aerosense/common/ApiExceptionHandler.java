@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -48,6 +50,36 @@ public class ApiExceptionHandler {
         "INVALID_JSON",
         "The request body is missing or malformed.",
         Map.of());
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ApiError> handleBadArgument(IllegalArgumentException exception) {
+    return error(HttpStatus.BAD_REQUEST, "INVALID_PARAMETER", exception.getMessage(), Map.of());
+  }
+
+  @ExceptionHandler(TypeMismatchException.class)
+  public ResponseEntity<ApiError> handleTypeMismatch(TypeMismatchException exception) {
+    return error(
+        HttpStatus.BAD_REQUEST,
+        "INVALID_PARAMETER",
+        "A query or path parameter has an invalid format.",
+        Map.of());
+  }
+
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<ApiError> handleStatus(ResponseStatusException exception) {
+    HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
+    String code =
+        switch (status) {
+          case NOT_FOUND -> "NOT_FOUND";
+          case CONFLICT -> "CONFLICT";
+          default -> "REQUEST_FAILED";
+        };
+    String message =
+        exception.getReason() == null
+            ? "The request could not be completed."
+            : exception.getReason();
+    return error(status, code, message, Map.of());
   }
 
   @ExceptionHandler(Exception.class)
