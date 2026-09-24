@@ -34,7 +34,7 @@ Stop services with docker compose down. Remove database and generated fixture fi
 
 ## Local browser client
 
-To run the client outside Compose, change to frontend/, install the locked dependencies with npm ci, and start Vite with npm run dev. It serves http://localhost:5173 and proxies /api requests to the Java API at http://localhost:8080. Set VITE_API_PROXY_TARGET if the API uses another address.
+To run the client outside Compose, change to frontend/, install the locked dependencies with npm ci, and start Vite with npm run dev. It serves http://localhost:5173 and proxies /api requests to the Java API at http://127.0.0.1:8080. Set VITE_API_PROXY_TARGET if the API uses another address.
 
 The dashboard provides rig, UTC date, and anomaly-status filters; cycle and analysis summaries; measurement trends; paginated cycles; cycle detail and score contributions; and a cited assistant panel. All assistant answers are deterministic and use the fictional Markdown notes in analytics/reference_notes. No model key is required.
 
