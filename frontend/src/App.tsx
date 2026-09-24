@@ -8,6 +8,12 @@ import {
 import { AssistantPanel } from "./components/AssistantPanel";
 import { CycleDetail } from "./components/CycleDetail";
 import { TrendChart } from "./components/TrendChart";
+import {
+  displayBenchCode,
+  displayRunCode,
+  displayRunType,
+  MEASUREMENT_GUIDE,
+} from "./presentation";
 import type {
   AnalysisRunRequest,
   AnalysisRunResponse,
@@ -20,11 +26,17 @@ import type {
 } from "./types/api";
 
 const FEATURE_OPTIONS: Array<{ key: FeatureName; label: string }> = [
-  { key: "vibration_rms", label: "Vibration · g_rms" },
-  { key: "pressure_kpa", label: "Pressure · kPa" },
-  { key: "extension_time_ms", label: "Extension time · ms" },
-  { key: "temperature_c", label: "Temperature · °C" },
-  { key: "cycle_duration_ms", label: "Cycle duration · ms" },
+  { key: "vibration_rms", label: MEASUREMENT_GUIDE.vibration_rms.label },
+  { key: "pressure_kpa", label: MEASUREMENT_GUIDE.pressure_kpa.label },
+  {
+    key: "extension_time_ms",
+    label: MEASUREMENT_GUIDE.extension_time_ms.label,
+  },
+  { key: "temperature_c", label: MEASUREMENT_GUIDE.temperature_c.label },
+  {
+    key: "cycle_duration_ms",
+    label: MEASUREMENT_GUIDE.cycle_duration_ms.label,
+  },
 ];
 
 interface FilterState {
@@ -60,14 +72,14 @@ function asCycleFilters(filters: FilterState): CycleFilters {
 
 function StatusText({ cycle }: { cycle: CycleResponse }) {
   if (cycle.isFlagged === null)
-    return <span className="table-status status-unknown">No saved score</span>;
+    return <span className="table-status status-unknown">Not compared</span>;
   return cycle.isFlagged ? (
     <span className="table-status status-flagged">
-      <i aria-hidden="true" /> Flagged
+      <i aria-hidden="true" /> Stands out
     </span>
   ) : (
     <span className="table-status status-clear">
-      <i aria-hidden="true" /> Below threshold
+      <i aria-hidden="true" /> Similar to others
     </span>
   );
 }
@@ -220,7 +232,7 @@ export default function App() {
     try {
       const response = await api.seedDemoData();
       setNotice(
-        `${response.rigCount} synthetic rigs and ${response.cycleCount.toLocaleString("en-GB")} synthetic cycles are ready.`,
+        `${response.rigCount} fictional test benches and ${response.cycleCount.toLocaleString("en-GB")} example test runs are ready.`,
       );
       setReloadKey((current) => current + 1);
     } catch (error) {
@@ -243,7 +255,7 @@ export default function App() {
       setLastRun(response);
       if (response.status === "SUCCEEDED") {
         setNotice(
-          `Synthetic analysis completed for ${response.cycleCount.toLocaleString("en-GB")} cycles. The scores are cohort-relative demo output.`,
+          `Comparison complete for ${response.cycleCount.toLocaleString("en-GB")} example runs. The highlights show readings that differ from the selected group.`,
         );
       } else {
         setDashboardError(
@@ -270,8 +282,12 @@ export default function App() {
   const pageCount = cyclePage
     ? Math.max(1, Math.ceil(cyclePage.totalElements / cyclePage.size))
     : 1;
-  const selectedCycleCode = selectedCycle?.cycleCode ?? null;
+  const selectedCycleCode = selectedCycle
+    ? displayRunCode(selectedCycle.cycleCode)
+    : null;
   const noCycles = summary?.totalCycles === 0;
+  const comparedCycleCount = summary?.analyzedCycles ?? 0;
+  const hasComparison = comparedCycleCount > 0;
 
   return (
     <div className="app-shell">
@@ -284,27 +300,27 @@ export default function App() {
           </span>
           <span className="brand-wordmark">
             AERO<span>SENSE</span>
-            <small>TEST INTELLIGENCE</small>
+            <small>FICTIONAL TEST DEMO</small>
           </span>
         </a>
-        <div className="sidebar-section-label">WORKSPACE</div>
+        <div className="sidebar-section-label">EXPLORE</div>
         <nav aria-label="Main navigation" className="side-nav">
           <a className="nav-item nav-item-active" href="#overview">
             <span>◫</span> Overview
           </a>
           <a className="nav-item" href="#cycles">
-            <span>▤</span> Test cycles
+            <span>▤</span> Test runs
           </a>
           <a className="nav-item" href="#assistant">
-            <span>⌁</span> Reference notes
+            <span>⌁</span> Demo notes
           </a>
         </nav>
         <div className="sidebar-spacer" />
         <div className="sidebar-system">
           <span className="system-indicator" />
           <div>
-            <strong>LOCAL WORKSPACE</strong>
-            <small>Demo services only</small>
+            <strong>MADE-UP SAMPLE</strong>
+            <small>For software demonstration only</small>
           </div>
         </div>
         <div className="sidebar-build">
@@ -315,122 +331,57 @@ export default function App() {
       <main className="main-content" id="overview">
         <header className="topbar">
           <div className="breadcrumb">
-            <span>Workspace</span>
+            <span>Demo</span>
             <b>/</b>
             <strong>Overview</strong>
           </div>
           <div className="topbar-right">
-            <span className="topbar-date">SYNTHETIC TEST ENVIRONMENT</span>
-            <span className="avatar" aria-label="Local analyst">
-              AS
-            </span>
+            <span className="topbar-date">MADE-UP DATA · LOCAL DEMO</span>
           </div>
         </header>
 
         <div className="content-wrap">
-          <div className="synthetic-banner" role="note">
-            <span className="banner-icon" aria-hidden="true">
-              i
-            </span>
-            <p>
-              <strong>Synthetic demonstration data</strong>
-              <span>
-                Fictional measurements and notes only. Scores and thresholds are
-                not validated limits, maintenance guidance, or safety advice.
+          <section aria-labelledby="story-heading" className="story-panel">
+            <div className="story-heading">
+              <span className="eyebrow">
+                A MADE-UP GROUND TEST · NO REAL AIRCRAFT DATA
               </span>
-            </p>
-            <span className="banner-tag">NO REAL AIRCRAFT DATA</span>
-          </div>
-
-          <section className="page-heading">
-            <div>
-              <span className="eyebrow">AEROSENSE / SOFTWARE DEMO</span>
-              <h1>Explore fictional system test data</h1>
+              <h1 id="story-heading">A made-up landing gear test</h1>
               <p>
-                See how a prototype can filter generated test runs, compare
-                readings, highlight unusual values, and search supporting notes.
+                The example is inspired by landing gear—the wheels and support
+                mechanism under a plane—but every part and reading here is
+                fictional. Imagine that mechanism held on a workbench while it
+                is tested repeatedly.
               </p>
             </div>
-            <div className="heading-actions">
-              {lastRun && (
-                <div className="last-run-badge">
-                  <span>Last run</span>
-                  <strong>{lastRun.status}</strong>
-                  <small>
-                    {lastRun.cycleCount.toLocaleString("en-GB")} cycles ·
-                    threshold {lastRun.threshold.toFixed(2)}
-                  </small>
-                </div>
-              )}
-              <div className="analysis-action">
-                <button
-                  className="button button-primary"
-                  disabled={running || noCycles}
-                  onClick={startAnalysis}
-                  title="Scores every cycle matching the selected rig and dates."
-                >
-                  <span aria-hidden="true">{running ? "◌" : "▶"}</span>
-                  {running ? "Scoring this group…" : "Score selected cycles"}
-                </button>
-                <small>Uses the selected rig and dates.</small>
+            <div className="story-definitions" aria-label="What the words mean">
+              <div>
+                <strong>Test bench</strong>
+                <span>
+                  A made-up work stand that holds the mechanism during a test.
+                </span>
+              </div>
+              <div>
+                <strong>Test run (cycle)</strong>
+                <span>
+                  One extension check, recorded as one row in the list.
+                </span>
+              </div>
+              <div>
+                <strong>Readings</strong>
+                <span>
+                  Five invented readings: extension time, pressure, vibration,
+                  temperature, and total test time.
+                </span>
               </div>
             </div>
-          </section>
-
-          <section
-            aria-labelledby="start-here-heading"
-            className="orientation-panel"
-          >
-            <div className="orientation-intro">
-              <span className="eyebrow">START HERE</span>
-              <h2 id="start-here-heading">What am I looking at?</h2>
-              <p>
-                AeroSense demonstrates a review workflow: filter fictional test
-                runs, compare readings, inspect unusual-value scores, and look
-                up what the included notes say. The data and equipment are made
-                up; this prototype does not assess a real aircraft or system.
-              </p>
+            <div className="story-purpose">
+              <strong>Why compare runs?</strong>
+              <span>
+                To see how software can spot readings that differ from other
+                runs. A highlight is a demo result, not a real warning.
+              </span>
             </div>
-            <ol className="workflow-steps">
-              <li>
-                <span className="step-number">1</span>
-                <div>
-                  <strong>Choose a comparison group</strong>
-                  <p>
-                    Pick a rig and date range. Together they define which cycles
-                    are compared. Status filters the cycle list only.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <span className="step-number">2</span>
-                <div>
-                  <strong>Review readings and scores</strong>
-                  <p>
-                    Click “Score selected cycles” to score every cycle in this
-                    rig/date group. A 0–1 score summarizes the biggest
-                    difference from the group; 0.65 is the default flag
-                    threshold. Select a cycle to inspect its readings.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <span className="step-number">3</span>
-                <div>
-                  <strong>Ask about the notes</strong>
-                  <p>
-                    Search the included fictional notes. Answers quote the
-                    passages they use or say when the notes do not support an
-                    answer.
-                  </p>
-                </div>
-              </li>
-            </ol>
-            <p className="orientation-note">
-              A comparison group is just the set of cycles currently selected.
-              Scores and flags are software demo output, not validated limits,
-              maintenance instructions, or safety advice.
-            </p>
           </section>
 
           {(notice || dashboardError || rigError) && (
@@ -465,103 +416,122 @@ export default function App() {
 
           <section aria-label="Dataset filters" className="filter-bar">
             <div className="filter-heading">
-              <span className="filter-glyph" aria-hidden="true">
-                ⌕
-              </span>
               <div>
-                <strong>Choose the cycles to review</strong>
-                <small>Rig and dates also define the next scoring group.</small>
+                <strong>Choose what to explore</strong>
+                <small>Start with all test benches or choose one.</small>
               </div>
             </div>
             <label className="filter-field">
-              <span>Test rig</span>
+              <span>Test bench</span>
               <select
-                aria-label="Test rig"
+                aria-label="Test bench"
                 onChange={(event) => updateFilter("rigId", event.target.value)}
                 value={filters.rigId}
               >
-                <option value="">All synthetic rigs</option>
+                <option value="">All test benches</option>
                 {rigs.map((rig) => (
                   <option key={rig.id} value={rig.id}>
-                    {rig.rigCode}
+                    {displayBenchCode(rig.rigCode)}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="filter-field">
-              <span>Start date · UTC</span>
-              <input
-                aria-label="From date"
-                onChange={(event) => updateFilter("from", event.target.value)}
-                type="date"
-                value={filters.from}
-              />
-            </label>
-            <label className="filter-field">
-              <span>End date · UTC</span>
-              <input
-                aria-label="To date"
-                onChange={(event) => updateFilter("to", event.target.value)}
-                type="date"
-                value={filters.to}
-              />
-            </label>
-            <label className="filter-field filter-field-status">
-              <span>Score status · cycle list only</span>
-              <select
-                aria-label="Anomaly status"
-                onChange={(event) =>
-                  updateFilter(
-                    "flagged",
-                    event.target.value as FilterState["flagged"],
-                  )
-                }
-                value={filters.flagged}
+            <details className="more-filters">
+              <summary>Dates and which runs appear</summary>
+              <div className="more-filter-fields">
+                <label className="filter-field">
+                  <span>From date</span>
+                  <input
+                    aria-label="From date"
+                    onChange={(event) =>
+                      updateFilter("from", event.target.value)
+                    }
+                    type="date"
+                    value={filters.from}
+                  />
+                </label>
+                <label className="filter-field">
+                  <span>To date</span>
+                  <input
+                    aria-label="To date"
+                    onChange={(event) => updateFilter("to", event.target.value)}
+                    type="date"
+                    value={filters.to}
+                  />
+                </label>
+                <label className="filter-field filter-field-status">
+                  <span>Show runs</span>
+                  <select
+                    aria-label="Demo comparison result"
+                    onChange={(event) =>
+                      updateFilter(
+                        "flagged",
+                        event.target.value as FilterState["flagged"],
+                      )
+                    }
+                    value={filters.flagged}
+                  >
+                    <option value="">All runs</option>
+                    <option value="true">Stands out</option>
+                    <option value="false">Similar to others</option>
+                  </select>
+                </label>
+                <button
+                  className="clear-filters"
+                  onClick={() => {
+                    setPage(0);
+                    setFilters({ rigId: "", from: "", to: "", flagged: "" });
+                  }}
+                  type="button"
+                >
+                  Clear filters
+                </button>
+              </div>
+            </details>
+            <div className="analysis-action">
+              <button
+                className="button button-primary"
+                disabled={running || noCycles}
+                onClick={startAnalysis}
+                title="Compares example readings among runs at the selected bench and dates."
               >
-                <option value="">All statuses</option>
-                <option value="true">Flagged</option>
-                <option value="false">Not flagged</option>
-              </select>
-            </label>
-            <button
-              className="clear-filters"
-              onClick={() => {
-                setPage(0);
-                setFilters({ rigId: "", from: "", to: "", flagged: "" });
-              }}
-              type="button"
-            >
-              Reset filters
-            </button>
+                <span aria-hidden="true">{running ? "◌" : "↔"}</span>
+                {running ? "Comparing runs…" : "Compare these runs"}
+              </button>
+              <small>Highlights readings that differ from the group.</small>
+              {lastRun && (
+                <small className="last-run-note">
+                  Last comparison: {lastRun.cycleCount.toLocaleString("en-GB")}{" "}
+                  runs
+                </small>
+              )}
+            </div>
           </section>
 
-          <section
-            aria-label="Synthetic dataset summary"
-            className="metric-grid"
-          >
+          <section aria-label="Test run summary" className="metric-grid">
             <MetricCard
               accent="mark-cyan"
-              label="Matching test cycles"
+              label="Runs in selected group"
               value={formatCount(summary?.totalCycles)}
-              detail="Cycles in the selected rig and dates"
+              detail="Count for the chosen benches and dates."
             />
             <MetricCard
               accent="mark-blue"
-              label="Scored cycles"
-              value={formatCount(summary?.analyzedCycles)}
-              detail="Have a saved software score"
+              label="Test benches in sample"
+              value={formatCount(rigs.length)}
+              detail="Fictional stands used in this example."
             />
             <MetricCard
               accent="mark-amber"
-              label="Flagged cycles"
-              value={formatCount(summary?.flaggedCycles)}
-              detail="Latest saved score met its run’s threshold"
-            />
-            <MetricCard
-              accent="mark-purple"
-              label="Synthetic rigs"
-              value={formatCount(rigs.length)}
-              detail="Fictional sources of generated cycles"
+              label={hasComparison ? "Runs that stand out" : "Runs compared"}
+              value={formatCount(
+                hasComparison ? summary?.flaggedCycles : comparedCycleCount,
+              )}
+              detail={
+                hasComparison
+                  ? "Their generated readings differ from most others."
+                  : "Choose “Compare these runs” to look for differences."
+              }
             />
           </section>
 
@@ -572,11 +542,11 @@ export default function App() {
             >
               <div className="panel-heading">
                 <div>
-                  <span className="eyebrow">COMPARE READINGS OVER TIME</span>
-                  <h2 id="trend-heading">Measurement trend</h2>
+                  <span className="eyebrow">ONE DOT = ONE TEST RUN</span>
+                  <h2 id="trend-heading">How a reading changes</h2>
                 </div>
                 <label className="chart-select">
-                  <span className="sr-only">Measurement to chart</span>
+                  <span>Reading</span>
                   <select
                     onChange={(event) =>
                       setFeatureName(event.target.value as FeatureName)
@@ -595,18 +565,17 @@ export default function App() {
                 {
                   FEATURE_OPTIONS.find((feature) => feature.key === featureName)
                     ?.label
-                }
+                }{" "}
+                ({MEASUREMENT_GUIDE[featureName].unit})
               </div>
               <p className="panel-explainer">
-                Each point is one generated test cycle. The vertical scale is
-                the selected measurement and unit; dates run left to right. The
-                chart shows up to 200 recent cycles in the selected rig and
-                dates.
+                The line follows this invented reading across recent runs. Read
+                left to right to follow the test dates.
               </p>
               <TrendChart loading={loading} trend={trend} />
               <div className="trend-disclaimer">
-                A high or low point is only a difference in this synthetic
-                dataset; it is not a warning by itself.
+                A high or low point is a difference in made-up data, not a
+                warning about real equipment.
               </div>
             </section>
 
@@ -617,43 +586,41 @@ export default function App() {
             >
               <div className="panel-heading cycle-heading-row">
                 <div>
-                  <span className="eyebrow">BROWSE INDIVIDUAL TEST RUNS</span>
-                  <h2 id="cycle-heading">Test cycles</h2>
+                  <span className="eyebrow">OPEN A ROW TO EXPLORE IT</span>
+                  <h2 id="cycle-heading">Test runs</h2>
                 </div>
                 <span className="row-count">
-                  {formatCount(cyclePage?.totalElements)} cycles
+                  {formatCount(cyclePage?.totalElements)} runs
                 </span>
               </div>
               <p className="panel-explainer cycle-explainer">
-                One row is one fictional test run. Select its cycle ID to see
-                the readings and score details. “Flagged” means the score met
-                the software threshold; “Below threshold” means it did not.
+                Each row is one example extension test. Select a run to see its
+                generated readings and why the demo marked it to review.
               </p>
               {loading && !cyclePage && (
-                <div className="panel-state">Loading synthetic cycles…</div>
+                <div className="panel-state">Loading example runs…</div>
               )}
               {!loading && noCycles && (
                 <div className="empty-dataset">
                   <span className="empty-mark" aria-hidden="true">
                     ＋
                   </span>
-                  <strong>No synthetic dataset loaded</strong>
+                  <strong>No example runs loaded</strong>
                   <span>
-                    Load the checked-in generator output to explore the demo
-                    workflow.
+                    Add the fictional sample runs to explore this dashboard.
                   </span>
                   <button
                     className="button button-secondary"
                     disabled={seeding}
                     onClick={seedData}
                   >
-                    {seeding ? "Loading fixtures…" : "Load synthetic demo data"}
+                    {seeding ? "Loading sample…" : "Load example test runs"}
                   </button>
                 </div>
               )}
               {!noCycles && cyclePage?.items.length === 0 && (
                 <div className="panel-state">
-                  No cycles match these filters.
+                  No test runs match these filters.
                 </div>
               )}
               {!!cyclePage?.items.length && (
@@ -662,10 +629,10 @@ export default function App() {
                     <table className="cycle-table">
                       <thead>
                         <tr>
-                          <th scope="col">Cycle</th>
-                          <th scope="col">Recorded · UTC</th>
-                          <th scope="col">Type</th>
-                          <th scope="col">Status</th>
+                          <th scope="col">Test run</th>
+                          <th scope="col">Date</th>
+                          <th scope="col">Test</th>
+                          <th scope="col">Demo comparison</th>
                           <th scope="col">
                             <span className="sr-only">Open details</span>
                           </th>
@@ -689,7 +656,7 @@ export default function App() {
                                 className="cycle-link"
                                 onClick={() => setSelectedCycleId(cycle.id)}
                               >
-                                {cycle.cycleCode}
+                                {displayRunCode(cycle.cycleCode)}
                               </button>
                             </td>
                             <td>
@@ -702,16 +669,16 @@ export default function App() {
                               }).format(new Date(cycle.recordedAt))}
                             </td>
                             <td className="cycle-type-cell">
-                              {cycle.cycleType
-                                .replaceAll("synthetic-", "")
-                                .replaceAll("-", " ")}
+                              {displayRunType(cycle.cycleType)}
                             </td>
                             <td>
                               <StatusText cycle={cycle} />
                             </td>
                             <td>
                               <button
-                                aria-label={`View ${cycle.cycleCode}`}
+                                aria-label={
+                                  "View " + displayRunCode(cycle.cycleCode)
+                                }
                                 className="row-open"
                                 onClick={() => setSelectedCycleId(cycle.id)}
                               >
@@ -765,9 +732,9 @@ export default function App() {
           </div>
 
           <footer className="app-footer">
-            <span>© 2026 AeroSense · Engineering Test Data Intelligence</span>
+            <span>© 2026 AeroSense · Software demonstration</span>
             <span>
-              Fictional dataset <i /> No engineering advice
+              Invented data only <i /> Not a real equipment assessment
             </span>
           </footer>
         </div>

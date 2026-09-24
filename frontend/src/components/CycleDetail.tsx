@@ -1,8 +1,9 @@
-import type {
-  AnalysisResultResponse,
-  CycleDetailResponse,
-  FeatureName,
-} from "../types/api";
+import type { AnalysisResultResponse, CycleDetailResponse } from "../types/api";
+import {
+  displayRunCode,
+  displayRunType,
+  MEASUREMENT_GUIDE,
+} from "../presentation";
 
 interface CycleDetailProps {
   cycle: CycleDetailResponse | null;
@@ -11,34 +12,23 @@ interface CycleDetailProps {
   error: string | null;
 }
 
-const featureLabels: Record<FeatureName, string> = {
-  extension_time_ms: "Extension time",
-  pressure_kpa: "Pressure",
-  vibration_rms: "Vibration",
-  temperature_c: "Temperature",
-  cycle_duration_ms: "Cycle duration",
-};
-
-const featureUnits: Record<FeatureName, string> = {
-  extension_time_ms: "ms",
-  pressure_kpa: "kPa",
-  vibration_rms: "g_rms",
-  temperature_c: "°C",
-  cycle_duration_ms: "ms",
-};
-
 export function CycleDetail({
   cycle,
   analysis,
   loading,
   error,
 }: CycleDetailProps) {
+  const mostDifferentFeature = analysis?.explanation.features.reduce(
+    (strongest, feature) =>
+      feature.contribution > strongest.contribution ? feature : strongest,
+  );
+
   return (
     <section aria-labelledby="detail-heading" className="panel detail-panel">
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">INSPECTION</span>
-          <h2 id="detail-heading">Cycle detail</h2>
+          <span className="eyebrow">ONE TEST RUN</span>
+          <h2 id="detail-heading">Run details</h2>
         </div>
         {cycle && (
           <span
@@ -47,31 +37,27 @@ export function CycleDetail({
             }
           >
             {cycle.isFlagged === null
-              ? "No saved score"
+              ? "Not compared"
               : cycle.isFlagged
-                ? "At or above threshold"
-                : "Below threshold"}
+                ? "Stands out"
+                : "Similar to others"}
           </span>
         )}
       </div>
 
-      {loading && <div className="panel-state">Loading selected cycle…</div>}
+      {loading && <div className="panel-state">Loading this test run…</div>}
       {!loading && error && <div className="inline-error">{error}</div>}
       {!loading && !error && !cycle && (
         <div className="panel-state">
-          Choose a cycle in the list to see its generated readings and score.
+          Select a row to see what was recorded during that test.
         </div>
       )}
       {!loading && cycle && (
         <>
           <div className="cycle-identity">
             <div>
-              <strong>{cycle.cycleCode}</strong>
-              <span>
-                {cycle.cycleType
-                  .replaceAll("synthetic-", "")
-                  .replaceAll("-", " ")}
-              </span>
+              <strong>{displayRunCode(cycle.cycleCode)}</strong>
+              <span>{displayRunType(cycle.cycleType)}</span>
             </div>
             <time dateTime={cycle.recordedAt}>
               {new Intl.DateTimeFormat("en-GB", {
@@ -87,114 +73,139 @@ export function CycleDetail({
             <>
               <div className="analysis-summary">
                 <div className="score-block">
-                  <span className="eyebrow">SOFTWARE COMPARISON SCORE</span>
-                  <strong>{analysis.score.toFixed(3)}</strong>
-                  <small>on a 0–1 scale; not a probability</small>
+                  <span className="eyebrow">DIFFERENCE FROM OTHER RUNS</span>
+                  <strong>{analysis.score.toFixed(2)}</strong>
+                  <small>
+                    Demo scale: 0 means similar, 1 means very different
+                  </small>
                 </div>
                 <div className="score-context">
-                  <span>
+                  <strong>
                     {analysis.isFlagged
-                      ? "This score met this run’s threshold"
-                      : "This score stayed below this run’s threshold"}
-                  </span>
-                  <strong>Threshold {analysis.threshold.toFixed(2)}</strong>
-                  <small>A demo setting, not an engineering limit.</small>
+                      ? "This run stands out in this group"
+                      : "This run is similar to this group"}
+                  </strong>
+                  <small>A software comparison, not a fault rating.</small>
                 </div>
               </div>
+              {mostDifferentFeature && (
+                <div className="standout-reading">
+                  <strong>
+                    Biggest difference:{" "}
+                    {MEASUREMENT_GUIDE[mostDifferentFeature.featureName].label}
+                  </strong>
+                  <span>
+                    This run:{" "}
+                    {mostDifferentFeature.observedValue.toLocaleString(
+                      "en-GB",
+                      { maximumFractionDigits: 3 },
+                    )}{" "}
+                    {MEASUREMENT_GUIDE[mostDifferentFeature.featureName].unit}
+                    {" · "}
+                    Typical in this group:{" "}
+                    {mostDifferentFeature.baselineMedian.toLocaleString(
+                      "en-GB",
+                      { maximumFractionDigits: 3 },
+                    )}{" "}
+                    {MEASUREMENT_GUIDE[mostDifferentFeature.featureName].unit}
+                  </span>
+                </div>
+              )}
+              <details className="score-method">
+                <summary>How did the demo compare the runs?</summary>
+                <p>
+                  It compares this run’s invented readings with the middle
+                  reading for each measure in the selected group. The largest
+                  difference sets the score. A score of{" "}
+                  {analysis.threshold.toFixed(2)} or higher is marked “Stands
+                  out” for this demo. That cutoff is an example software
+                  setting, not an engineering limit.
+                </p>
+              </details>
+              <details className="other-readings">
+                <summary>See how the other readings compared</summary>
+                <div className="contribution-list">
+                  {analysis.explanation.features
+                    .filter(
+                      (feature) =>
+                        feature.featureName !==
+                        mostDifferentFeature?.featureName,
+                    )
+                    .map((feature) => (
+                      <div
+                        className="contribution-row"
+                        key={feature.featureName}
+                      >
+                        <div className="contribution-title">
+                          <strong>
+                            {MEASUREMENT_GUIDE[feature.featureName].label}
+                          </strong>
+                        </div>
+                        <div className="contribution-values">
+                          <span>
+                            This run: {feature.observedValue.toFixed(3)}{" "}
+                            {MEASUREMENT_GUIDE[feature.featureName].unit}
+                          </span>
+                          <span>
+                            Typical in group:{" "}
+                            {feature.baselineMedian.toFixed(3)}{" "}
+                            {MEASUREMENT_GUIDE[feature.featureName].unit}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </details>
               <p className="score-explanation">
-                The score summarizes the largest difference among this cycle’s
-                readings compared with the cycles analyzed in the same run. A
-                flag means “different in this comparison group”; it does not
-                indicate a cause, fault, or safety condition.
+                These results show differences in fictional sample data only.
+                They cannot tell whether real equipment is working properly.
               </p>
             </>
           ) : (
             <div className="no-analysis-note">
-              This cycle has no saved score yet. Use “Score selected cycles”
-              above to calculate scores for the selected rig and dates.
+              <strong>This run has not been compared yet.</strong>
+              <span>
+                Choose “Compare these runs” above to see how its readings
+                compare with the selected test runs.
+              </span>
             </div>
           )}
 
-          <h3 className="subsection-heading">Measurement summary</h3>
+          <h3 className="subsection-heading">Readings from this run</h3>
           <p className="muted-note">
-            These are the generated readings for this test cycle. The unit is
-            shown beside each value.
+            Every value here is invented for the demo. Names describe the kind
+            of reading, not a normal or acceptable range.
           </p>
           <div className="measurement-table-wrap">
             <table className="compact-table">
               <thead>
                 <tr>
-                  <th scope="col">Measurement</th>
-                  <th scope="col">Value</th>
+                  <th scope="col">What was measured</th>
+                  <th scope="col">Example value</th>
                   <th scope="col">Unit</th>
                 </tr>
               </thead>
               <tbody>
-                {cycle.measurements.map((measurement) => (
-                  <tr key={measurement.featureName}>
-                    <th scope="row">
-                      {featureLabels[measurement.featureName]}
-                    </th>
-                    <td>
-                      {measurement.value.toLocaleString("en-GB", {
-                        maximumFractionDigits: 3,
-                      })}
-                    </td>
-                    <td>{measurement.unit}</td>
-                  </tr>
-                ))}
+                {cycle.measurements.map((measurement) => {
+                  const guide = MEASUREMENT_GUIDE[measurement.featureName];
+                  return (
+                    <tr key={measurement.featureName}>
+                      <th scope="row">
+                        {guide.label}
+                        <small>{guide.description}</small>
+                      </th>
+                      <td>
+                        {measurement.value.toLocaleString("en-GB", {
+                          maximumFractionDigits: 3,
+                        })}
+                      </td>
+                      <td>{guide.unit}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-
-          {analysis && (
-            <>
-              <h3 className="subsection-heading explanation-heading">
-                Which readings set the score?
-              </h3>
-              <p className="muted-note">
-                Each index compares a reading with the median (middle value) of
-                this run’s comparison group. The highest index sets the score;
-                100 is the scale limit. Distance is measured relative to the
-                group’s typical variation, and does not explain a physical
-                cause.
-              </p>
-              <div className="contribution-list">
-                {analysis.explanation.features.map((feature) => (
-                  <div className="contribution-row" key={feature.featureName}>
-                    <div className="contribution-title">
-                      <strong>{featureLabels[feature.featureName]}</strong>
-                      <span>
-                        Index {(feature.contribution * 100).toFixed(0)} / 100
-                      </span>
-                    </div>
-                    <div
-                      aria-label={`${featureLabels[feature.featureName]} deviation index ${(feature.contribution * 100).toFixed(0)} out of 100`}
-                      className="contribution-track"
-                      role="img"
-                    >
-                      <span
-                        style={{ width: `${feature.contribution * 100}%` }}
-                      />
-                    </div>
-                    <div className="contribution-values">
-                      <span>
-                        Reading {feature.observedValue.toFixed(3)}{" "}
-                        {featureUnits[feature.featureName]}
-                      </span>
-                      <span>
-                        Group median {feature.baselineMedian.toFixed(3)}{" "}
-                        {featureUnits[feature.featureName]}
-                      </span>
-                      <span>
-                        Distance {feature.robustZScore.toFixed(2)} spread units
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
         </>
       )}
     </section>

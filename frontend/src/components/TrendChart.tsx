@@ -1,4 +1,5 @@
 import type { MeasurementTrendResponse } from "../types/api";
+import { displayRunCode, MEASUREMENT_GUIDE } from "../presentation";
 
 interface TrendChartProps {
   trend: MeasurementTrendResponse | null;
@@ -14,7 +15,7 @@ const BOTTOM = 38;
 
 export function TrendChart({ trend, loading }: TrendChartProps) {
   if (loading && !trend) {
-    return <div className="chart-state">Loading synthetic measurements…</div>;
+    return <div className="chart-state">Loading example readings…</div>;
   }
   if (!trend?.points.length) {
     return (
@@ -24,8 +25,7 @@ export function TrendChart({ trend, loading }: TrendChartProps) {
         </span>
         <strong>No readings found for these filters</strong>
         <span>
-          Try another rig or date range. The chart uses the selected measurement
-          from matching cycles.
+          Choose another test bench or date range to see different runs.
         </span>
       </div>
     );
@@ -56,7 +56,12 @@ export function TrendChart({ trend, loading }: TrendChartProps) {
   return (
     <figure className="trend-figure">
       <svg
-        aria-label={`${trend.featureName.replaceAll("_", " ")} trend in ${trend.unit}, showing ${trend.points.length} synthetic cycle measurements`}
+        aria-label={
+          MEASUREMENT_GUIDE[trend.featureName].label +
+          " over " +
+          trend.points.length +
+          " example test runs"
+        }
         className="trend-svg"
         role="img"
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -103,7 +108,13 @@ export function TrendChart({ trend, loading }: TrendChartProps) {
               key={point.cycleId}
               r="3"
             >
-              <title>{`${point.cycleCode}: ${point.value} ${trend.unit}`}</title>
+              <title>
+                {displayRunCode(point.cycleCode) +
+                  ": " +
+                  point.value +
+                  " " +
+                  MEASUREMENT_GUIDE[trend.featureName].unit}
+              </title>
             </circle>
           ))}
         <text className="chart-tick" x={LEFT} y={HEIGHT - 10}>
@@ -119,8 +130,8 @@ export function TrendChart({ trend, loading }: TrendChartProps) {
         </text>
       </svg>
       <figcaption className="chart-caption">
-        <span>{trend.points.length} latest synthetic cycles</span>
-        <span>Recorded time · UTC</span>
+        <span>Most recent {trend.points.length} test runs</span>
+        <span>Test date</span>
       </figcaption>
     </figure>
   );

@@ -178,27 +178,24 @@ describe("AeroSense dashboard", () => {
   it("shows synthetic summaries, trends, and the selected cycle explanation", async () => {
     render(<App />);
 
-    expect(await screen.findByText("CYC-000101")).toBeInTheDocument();
+    expect(await screen.findByText("Run 000101")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "What am I looking at?" }),
+      screen.getByRole("heading", {
+        name: "A made-up landing gear test",
+      }),
     ).toBeInTheDocument();
+    expect(screen.getByText("Test run (cycle)")).toBeInTheDocument();
+    expect(screen.getByText("Why compare runs?")).toBeInTheDocument();
+    expect(screen.getByText("All test benches")).toBeInTheDocument();
     expect(
-      screen.getByText(/Status filters the cycle list only/),
+      screen.getByRole("button", { name: "Compare these runs" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("1,000")).toBeInTheDocument();
     expect(
-      screen.getByText("Synthetic demonstration data"),
+      screen.getByRole("img", { name: /vibration level over/i }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("1,000")).toHaveLength(2);
-    expect(
-      screen.getByRole("img", { name: /vibration rms trend/i }),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText("Which readings set the score?"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("0.812")).toBeInTheDocument();
-    expect(
-      screen.getByText("A demo setting, not an engineering limit."),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Biggest difference:/)).toBeInTheDocument();
+    expect(screen.getByText("0.81")).toBeInTheDocument();
   });
 
   it("submits focused questions and shows note citations beside the answer", async () => {
@@ -222,9 +219,11 @@ describe("AeroSense dashboard", () => {
     fireEvent.change(input, {
       target: { value: "What does the review note say?" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Search notes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Find an answer" }));
 
-    expect(await screen.findByText("Supported by notes")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Answer found in the notes"),
+    ).toBeInTheDocument();
     expect(screen.getByText("demo-note-02#chunk-01")).toBeInTheDocument();
     expect(api.askQuestion).toHaveBeenCalledWith({
       question: "What does the review note say?",
@@ -248,7 +247,7 @@ describe("AeroSense dashboard", () => {
       "Summary service offline",
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Explore fictional system test data",
+      "A made-up landing gear test",
     );
   });
 });
