@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+**/node_modules
+**/target
+**/.m2
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+frontend/dist
+frontend/coverage
+data/generated

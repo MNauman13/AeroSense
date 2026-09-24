@@ -21,6 +21,96 @@ services:
       retries: 20
       start_period: 5s
 
+  analytics:
+    image: aerosense-analytics:local
+    build:
+      context: .
+      dockerfile: analytics/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${ANALYTICS_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json, urllib.request; response = urllib.request.urlopen('http://localhost:8000/health', timeout=2); assert json.load(response)['status'] == 'UP'"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  synthetic-fixtures:
+    image: aerosense-analytics:local
+    build:
+      context: .
+      dockerfile: analytics/Dockerfile
+    command:
+      - uv
+      - run
+      - --no-sync
+      - python
+      - -m
+      - app.generate_cli
+      - --rig-count
+      - "3"
+      - --cycle-count
+      - "1000"
+      - --seed
+      - "20260101"
+      - --output-dir
+      - /demo-data
+    volumes:
+      - synthetic-demo-data:/demo-data
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aerosense}
+      DATABASE_USERNAME: ${APP_DB_USER:-aerosense_app}
+      DATABASE_PASSWORD: ${APP_DB_PASSWORD:-synthetic-app-local-only}
+      ANALYTICS_URL: http://analytics:8000
+      RETRIEVAL_URL: http://analytics:8000
+      AEROSENSE_DEMO_DATA_DIRECTORY: /demo-data
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - synthetic-demo-data:/demo-data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      analytics:
+        condition: service_healthy
+      synthetic-fixtures:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/api/v1/health > /dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  # Flyway runs at backend startup; this profile supports a manual migration check.
   migrate:
     image: flyway/flyway:13.7.0
     profiles: ["tools"]
@@ -38,3 +128,4 @@ services:
 
 volumes:
   postgres-data:
+  synthetic-demo-data:
