@@ -17,6 +17,8 @@ vi.mock("./api/client", () => ({
     listRigs: vi.fn(),
     seedDemoData: vi.fn(),
     getCycles: vi.fn(),
+    cycleCsvUrl: vi.fn(() => "/api/v1/cycles/export"),
+    cycleReportUrl: vi.fn(() => "/api/v1/cycles/report"),
     getSummary: vi.fn(),
     getTrend: vi.fn(),
     getCycle: vi.fn(),
@@ -190,6 +192,12 @@ describe("AeroSense dashboard", () => {
     expect(
       screen.getByRole("button", { name: "Compare these runs" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Download filtered test runs as CSV" }),
+    ).toHaveAttribute("href", "/api/v1/cycles/export");
+    expect(
+      screen.getByRole("link", { name: "Download filtered test run report" }),
+    ).toHaveAttribute("href", "/api/v1/cycles/report");
     expect(screen.getByText("1,000")).toBeInTheDocument();
     expect(
       screen.getByRole("img", { name: /vibration level over/i }),

@@ -78,6 +78,44 @@ paths:
                         type: array
                         items: {$ref: '#/components/schemas/CycleResponse'}
         '400': {$ref: '#/components/responses/BadRequest'}
+  /api/v1/cycles/export:
+    get:
+      operationId: exportFilteredCyclesCsv
+      description: Downloads every cycle matching the dashboard filters, including synthetic readings and the latest demo-comparison status. Ground-truth labels are never included.
+      parameters:
+        - {name: rigId, in: query, schema: {type: string, format: uuid}}
+        - {name: from, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: to, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: flagged, in: query, description: Filter by the latest saved demo comparison, not generator ground truth, schema: {type: boolean}}
+      responses:
+        '200':
+          description: UTF-8 CSV attachment for the selected synthetic test runs.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            text/csv:
+              schema: {type: string, format: binary}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/v1/cycles/report:
+    get:
+      operationId: downloadFilteredCyclesReport
+      description: Downloads a short text summary for every cycle matching the dashboard filters. Counts and reading summaries are synthetic and descriptive only.
+      parameters:
+        - {name: rigId, in: query, schema: {type: string, format: uuid}}
+        - {name: from, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: to, in: query, description: Inclusive UTC instant, schema: {type: string, format: date-time}}
+        - {name: flagged, in: query, description: Filter by the latest saved demo comparison, not generator ground truth, schema: {type: boolean}}
+      responses:
+        '200':
+          description: UTF-8 plain-text attachment with run counts and measurement summaries.
+          headers:
+            Content-Disposition:
+              schema: {type: string}
+          content:
+            text/plain:
+              schema: {type: string, format: binary}
+        '400': {$ref: '#/components/responses/BadRequest'}
   /api/v1/cycles/{cycleId}:
     get:
       operationId: getCycle

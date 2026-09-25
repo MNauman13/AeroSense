@@ -1,6 +1,7 @@
 package com.aerosense.aerosense.cycle;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,28 @@ public interface TestCycleRepository extends JpaRepository<TestCycleEntity, UUID
       @Param("toTime") Instant toTime,
       @Param("flagged") Boolean flagged,
       Pageable pageable);
+
+  @Query(
+      """
+      select c from TestCycleEntity c
+      where c.rig.id = coalesce(:rigId, c.rig.id)
+        and c.recordedAt >= coalesce(:fromTime, c.recordedAt)
+        and c.recordedAt <= coalesce(:toTime, c.recordedAt)
+        and (:flagged is null or exists (
+          select result.id from AnomalyResultEntity result
+          where result.testCycle = c and result.isFlagged = :flagged
+            and result.createdAt = (
+              select max(latest.createdAt) from AnomalyResultEntity latest
+              where latest.testCycle = c
+            )
+        ))
+      order by c.recordedAt desc, c.cycleCode asc
+      """)
+  List<TestCycleEntity> findFilteredForExport(
+      @Param("rigId") UUID rigId,
+      @Param("fromTime") Instant fromTime,
+      @Param("toTime") Instant toTime,
+      @Param("flagged") Boolean flagged);
 
   @Query(
       """

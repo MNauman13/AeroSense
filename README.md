@@ -20,6 +20,8 @@ Open http://localhost:5173 and select **Load synthetic demo data**, or seed with
 
 Use **Run synthetic analysis** to score the stored cycles, then review cycle results and ask a question about the fictional notes. No external model credentials are needed.
 
+The **Test runs** panel can download a CSV of every run matching the current bench, date, and comparison filters, or a short text report with counts and descriptive reading summaries. These downloads include generated readings and the latest demo-comparison result, but never expose the generator's evaluation-only labels. Values and comparisons remain synthetic software output, not engineering or maintenance advice.
+
 Run the end-to-end smoke flow from PowerShell:
 
     .\scripts\e2e-smoke.ps1

@@ -72,6 +72,15 @@ function addDateFilters(params: URLSearchParams, filters: DateRigFilters) {
   if (filters.to) params.set("to", filters.to);
 }
 
+function filteredCycleUrl(path: string, filters: CycleFilters) {
+  const params = new URLSearchParams();
+  addDateFilters(params, filters);
+  if (filters.flagged !== undefined)
+    params.set("flagged", String(filters.flagged));
+  const query = params.toString();
+  return query ? `${path}?${query}` : path;
+}
+
 export const api = {
   listRigs: () => request<RigResponse[]>("/api/v1/rigs"),
 
@@ -95,6 +104,12 @@ export const api = {
       `/api/v1/cycles?${params.toString()}`,
     );
   },
+
+  cycleCsvUrl: (filters: CycleFilters) =>
+    filteredCycleUrl("/api/v1/cycles/export", filters),
+
+  cycleReportUrl: (filters: CycleFilters) =>
+    filteredCycleUrl("/api/v1/cycles/report", filters),
 
   getSummary: (filters: DateRigFilters) => {
     const params = new URLSearchParams();

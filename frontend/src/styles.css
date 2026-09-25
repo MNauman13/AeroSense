@@ -694,6 +694,18 @@ a {
 .cycle-heading-row {
   margin-bottom: 11px;
 }
+.cycle-heading-tools,
+.cycle-downloads {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cycle-downloads .button {
+  min-height: 30px;
+  padding: 0 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
 .row-count {
   color: #8392a4;
   font-size: 9px;
@@ -1287,6 +1299,16 @@ a {
   }
   .content-wrap {
     padding: 14px 13px 20px;
+  }
+  .cycle-heading-row {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .cycle-heading-tools,
+  .cycle-downloads {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 5px;
   }
   .synthetic-banner {
     align-items: flex-start;

@@ -130,6 +130,17 @@ The response includes the run ID, status, selected cycle count, model version, a
 
 `GET /api/v1/metrics/summary` reports dataset counts and descriptive statistics for the synthetic measurement summaries. These values are not engineering limits or safety advice.
 
+## Filtered downloads
+
+The dashboard's CSV and report links preserve the selected rig, inclusive UTC date range, and latest demo-comparison status. They export all matching runs across every results page. CSV rows contain generated measurements and the saved demo status; they omit the private `syntheticLabel` used only to evaluate the generator.
+
+```text
+GET /api/v1/cycles/export?rigId=00000000-0000-4000-8000-000000000001&from=2026-01-01T00:00:00Z&to=2026-01-31T23:59:59Z&flagged=true
+GET /api/v1/cycles/report?rigId=00000000-0000-4000-8000-000000000001&from=2026-01-01T00:00:00Z&to=2026-01-31T23:59:59Z&flagged=true
+```
+
+The first endpoint returns a UTF-8 CSV attachment with readings and units. The second returns a short UTF-8 text attachment with included-run totals, comparison-status counts, and average/minimum/maximum readings. Both state that the data is synthetic and not advice; the summary is descriptive, not a set of equipment limits.
+
 ## Pagination and errors
 
 ```json

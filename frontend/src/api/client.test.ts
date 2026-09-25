@@ -31,4 +31,20 @@ describe("API date filters", () => {
     expect(requestUrl).toContain("to=2026-01-31T23%3A59%3A59.999Z");
     expect(requestUrl).not.toContain("T00%3A00%3A00.000ZT");
   });
+
+  it("builds CSV and report download URLs with the dashboard filters", () => {
+    const filters = {
+      rigId: "00000000-0000-4000-8000-000000000001",
+      from: "2026-01-01T00:00:00.000Z",
+      to: "2026-01-31T23:59:59.999Z",
+      flagged: false,
+    };
+
+    expect(api.cycleCsvUrl(filters)).toBe(
+      "/api/v1/cycles/export?rigId=00000000-0000-4000-8000-000000000001&from=2026-01-01T00%3A00%3A00.000Z&to=2026-01-31T23%3A59%3A59.999Z&flagged=false",
+    );
+    expect(api.cycleReportUrl(filters)).toBe(
+      "/api/v1/cycles/report?rigId=00000000-0000-4000-8000-000000000001&from=2026-01-01T00%3A00%3A00.000Z&to=2026-01-31T23%3A59%3A59.999Z&flagged=false",
+    );
+  });
 });

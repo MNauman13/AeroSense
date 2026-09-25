@@ -589,13 +589,40 @@ export default function App() {
                   <span className="eyebrow">OPEN A ROW TO EXPLORE IT</span>
                   <h2 id="cycle-heading">Test runs</h2>
                 </div>
-                <span className="row-count">
-                  {formatCount(cyclePage?.totalElements)} runs
-                </span>
+                <div className="cycle-heading-tools">
+                  <span className="row-count">
+                    {formatCount(cyclePage?.totalElements)} runs
+                  </span>
+                  {!!cyclePage?.totalElements && (
+                    <div
+                      aria-label="Download filtered test runs"
+                      className="cycle-downloads"
+                    >
+                      <a
+                        aria-label="Download filtered test runs as CSV"
+                        className="button button-secondary"
+                        download="aerosense-synthetic-test-runs.csv"
+                        href={api.cycleCsvUrl(cycleFilters)}
+                      >
+                        Download CSV
+                      </a>
+                      <a
+                        aria-label="Download filtered test run report"
+                        className="button button-secondary"
+                        download="aerosense-synthetic-test-report.txt"
+                        href={api.cycleReportUrl(cycleFilters)}
+                      >
+                        Download report
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="panel-explainer cycle-explainer">
                 Each row is one example extension test. Select a run to see its
                 generated readings and why the demo marked it to review.
+                Downloads include every run matching the filters, not just this
+                page.
               </p>
               {loading && !cyclePage && (
                 <div className="panel-state">Loading example runs…</div>
