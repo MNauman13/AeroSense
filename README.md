@@ -43,6 +43,8 @@ The robust z-score baseline compares measurements within the selected synthetic 
 
 See the [development guide](docs/development.md), [short demo script](docs/demo-script.md), [architecture](docs/architecture.md), [data dictionary](docs/data-dictionary.md), [API examples](docs/api-examples.md), and [OpenAPI contract](docs/openapi.yaml).
 
+An optional [Cloud Run deployment guide](docs/cloud-run.md) is available for a public, synthetic-only demo using an existing Cloud SQL instance. No cloud service is deployed or claimed as running by this repository.
+
 ## Checks
 
 Run Java checks from backend/:
@@ -68,4 +70,4 @@ Check Compose syntax without starting services with docker compose config --quie
 
 ## Scope
 
-The local MVP uses a fixed-seed synthetic dataset and a small set of clearly fictional Markdown notes. The assistant returns retrieved evidence with citations or states that evidence is insufficient. No LLM is required. Cloud deployment, authentication, streaming, and operational aircraft data are outside the project scope.
+The local MVP uses a fixed-seed synthetic dataset and a small set of clearly fictional Markdown notes. The assistant returns retrieved evidence with citations or states that evidence is insufficient. No LLM is required. Production deployment, authentication, streaming, and operational aircraft data are outside the project scope.

@@ -78,4 +78,4 @@ Check Compose syntax without starting containers with docker compose config --qu
 
 The scores, threshold, explanations, sample values, and notes are synthetic demonstration output. Evaluation metrics apply only to the generated fixture dataset. They do not generalize to aircraft equipment and provide no operating limits, diagnosis, inspection steps, or maintenance advice.
 
-Do not add authentication, streaming, Kubernetes, a required external LLM, or cloud deployment to the local MVP.
+Do not add authentication, streaming, Kubernetes, a required external LLM, or production cloud deployment to the local MVP. The separate [Cloud Run demo path](cloud-run.md) is an optional public deployment of synthetic-only data and requires a pre-existing Cloud SQL instance.

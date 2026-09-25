@@ -1,0 +1,53 @@
+substitutions:
+  _REGION: europe-west2
+  _REPOSITORY: aerosense
+  _TAG: local
+
+steps:
+  - id: Generate reproducible synthetic seed files
+    name: python:3.12-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        pip install --no-cache-dir uv==0.11.21
+        uv sync --project analytics --locked --no-dev
+        mkdir -p cloud-run/fixtures
+        uv run --project analytics --no-sync python -m app.generate_cli \
+          --rig-count 3 --cycle-count 1000 --seed 20260101 \
+          --output-dir cloud-run/fixtures
+  - id: Build and publish analytics
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --tag
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/aerosense-analytics:${_TAG}
+      - --file
+      - analytics/Dockerfile
+      - .
+  - id: Build and publish backend with synthetic seed files
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --tag
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/aerosense-backend:${_TAG}
+      - --file
+      - backend/Dockerfile.cloudrun
+      - .
+  - id: Build and publish frontend
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --tag
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/aerosense-frontend:${_TAG}
+      - --file
+      - frontend/Dockerfile
+      - .
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/aerosense-analytics:${_TAG}
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/aerosense-backend:${_TAG}
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/aerosense-frontend:${_TAG}
+
+options:
+  logging: CLOUD_LOGGING_ONLY

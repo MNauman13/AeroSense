@@ -28,3 +28,5 @@ All data and notes are generated or written as fictional demonstration material 
 Analysis runs execute synchronously over at most 10,000 selected stored cycles. The Java API saves the requested threshold and run status, sends feature vectors without ground-truth labels to Python, then stores scores and numerical explanations. If analytics is unavailable, the run is stored as `FAILED` with a safe summary and no result rows. Synthetic labels are loaded only for the run's separate evaluation request.
 
 See [ADR 0001](adr/0001-service-boundaries.md) for the Java/Python boundary and [the data dictionary](data-dictionary.md) for wire contracts.
+
+The optional [Cloud Run deployment](cloud-run.md) keeps this service split, uses Cloud SQL for persistence, and bakes the fixed-seed synthetic fixture into the backend image because Cloud Run services do not share the local Compose fixture volume.

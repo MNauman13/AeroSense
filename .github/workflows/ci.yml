@@ -51,6 +51,7 @@ jobs:
           uv run --no-sync ruff check app tests
           uv run --no-sync ruff format --check app tests
           uv run --no-sync pytest
+          uv run --no-sync python -m app.generate_cli --rig-count 3 --cycle-count 1000 --seed 20260101 --output-dir ../cloud-run/fixtures
 
       - name: Check and test frontend
         working-directory: frontend
@@ -63,6 +64,9 @@ jobs:
 
       - name: Build backend container
         run: docker build --tag aerosense-backend:ci --file backend/Dockerfile .
+
+      - name: Build Cloud Run backend container
+        run: docker build --tag aerosense-backend-cloudrun:ci --file backend/Dockerfile.cloudrun .
 
       - name: Build analytics container
         run: docker build --tag aerosense-analytics:ci --file analytics/Dockerfile .

@@ -23,6 +23,8 @@ frontend/coverage/
 !.env.example
 data/generated/*
 !data/generated/.gitkeep
+cloud-run/fixtures/*
+!cloud-run/fixtures/.gitkeep
 
 # IDE and operating-system files
 .idea/
