@@ -22,6 +22,8 @@ Use **Run synthetic analysis** to score the stored cycles, then review cycle res
 
 The **Test runs** panel can download a CSV of every run matching the current bench, date, and comparison filters, or a short text report with counts and descriptive reading summaries. These downloads include generated readings and the latest demo-comparison result, but never expose the generator's evaluation-only labels. Values and comparisons remain synthetic software output, not engineering or maintenance advice.
 
+The assistant uses deterministic local retrieval and answers by default. An optional OpenAI-compatible answer provider can phrase answers from retrieved fictional notes and supplied synthetic cycle context; it is disabled by default, requires a model name and API key, and falls back to deterministic answers when unavailable. No model credentials are needed for local use.
+
 Run the end-to-end smoke flow from PowerShell:
 
     .\scripts\e2e-smoke.ps1
@@ -34,7 +36,7 @@ The default ports are 5173 (dashboard), 8080 (Java API), 8000 (Python analytics/
 
 - **Java 21 / Spring Boot:** public API, validation, persistence, Flyway migrations, and analysis orchestration.
 - **PostgreSQL:** synthetic rigs, cycles, measurements, analysis runs, and results.
-- **Python 3.12 / FastAPI:** robust z-score baseline, synthetic-only evaluation, and deterministic lexical retrieval over local notes.
+- **Python 3.12 / FastAPI:** robust z-score baseline, synthetic-only evaluation, and lexical retrieval over local notes with deterministic answers by default.
 - **React / TypeScript:** dashboard served by Nginx; the browser calls only the Java API.
 
 The robust z-score baseline compares measurements within the selected synthetic cohort. Scores and feature contributions are software output and do not identify real equipment conditions. Evaluation precision, recall, and F1 describe only the generated fixture data.

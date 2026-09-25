@@ -1,9 +1,10 @@
-"""Evidence-only deterministic answer mode. It does not generate new reference material."""
+"""Answer only from passages retrieved from the fictional reference corpus."""
 
 from __future__ import annotations
 
+import logging
 import re
-from typing import Any
+from typing import Any, Protocol
 
 from app.retrieval.corpus import Passage
 from app.retrieval.retriever import retrieve
@@ -12,9 +13,39 @@ from app.schemas import AnswerResponse, Citation, RetrievalRequest
 DISCLAIMER = "Synthetic demonstration only. Not engineering or maintenance advice."
 INSUFFICIENT_ANSWER = "I could not find support for that in the demo sources."
 _ANALYSIS_TERMS = {"anomalous", "anomaly", "flag", "flagged", "score", "scoring"}
+logger = logging.getLogger(__name__)
 
 
-def answer_question(request: RetrievalRequest, passages: list[Passage]) -> AnswerResponse:
+class AnswerProvider(Protocol):
+    def answer(
+        self,
+        question: str,
+        passages: list[Passage],
+        cycle_context: dict[str, Any] | None,
+    ) -> str: ...
+
+
+class DeterministicAnswerProvider:
+    """Phrase retrieved text and stored synthetic analysis without a model call."""
+
+    def answer(
+        self,
+        question: str,
+        passages: list[Passage],
+        cycle_context: dict[str, Any] | None,
+    ) -> str:
+        cycle_answer = _cycle_analysis_answer(question, cycle_context)
+        evidence = " ".join(f"“{passage.excerpt}”" for passage in passages)
+        if cycle_answer:
+            return f"{cycle_answer} The fictional demo notes say: {evidence}"
+        return f"The fictional demo notes say: {evidence}"
+
+
+def answer_question(
+    request: RetrievalRequest,
+    passages: list[Passage],
+    provider: AnswerProvider | None = None,
+) -> AnswerResponse:
     matches = retrieve(request.question, passages)
     if not matches:
         return _insufficient()
@@ -32,11 +63,20 @@ def answer_question(request: RetrievalRequest, passages: list[Passage]) -> Answe
             disclaimer=DISCLAIMER,
         )
 
-    evidence = " ".join(f"“{passage.excerpt}”" for passage in matches)
-    if cycle_answer:
-        answer = f"{cycle_answer} The fictional demo notes say: {evidence}"
-    else:
-        answer = f"The fictional demo notes say: {evidence}"
+    answer_provider = provider or DeterministicAnswerProvider()
+    try:
+        answer = answer_provider.answer(request.question, matches, request.cycleContext)
+        if not isinstance(answer, str) or not answer.strip():
+            raise ValueError("The answer provider returned an empty response.")
+        answer = answer.strip()
+    except Exception as exception:
+        logger.warning(
+            "Answer provider failed; using deterministic local fallback (%s).",
+            type(exception).__name__,
+        )
+        answer = DeterministicAnswerProvider().answer(
+            request.question, matches, request.cycleContext
+        )
     citations = [
         Citation(sourceId=passage.source_id, title=passage.title, excerpt=passage.excerpt)
         for passage in matches

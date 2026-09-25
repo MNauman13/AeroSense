@@ -7,7 +7,7 @@ All example data, measurements, limits, rig descriptions, and reference notes ar
 ## Repository layout
 
 - backend/: Java 21 / Spring Boot API and PostgreSQL access.
-- analytics/: Python analytics and deterministic retrieval service.
+- analytics/: Python analytics, lexical retrieval, and optional answer-provider service.
 - frontend/: React and TypeScript dashboard; it calls only the Java API.
 - data/: generator instructions and ignored local generated output.
 - docs/: architecture, contracts, API examples, and decisions.
@@ -36,7 +36,9 @@ Stop services with docker compose down. Remove database and generated fixture fi
 
 To run the client outside Compose, change to frontend/, install the locked dependencies with npm ci, and start Vite with npm run dev. It serves http://localhost:5173 and proxies /api requests to the Java API at http://127.0.0.1:8080. Set VITE_API_PROXY_TARGET if the API uses another address.
 
-The dashboard provides rig, UTC date, and anomaly-status filters; cycle and analysis summaries; measurement trends; paginated cycles; cycle detail and score contributions; and a cited assistant panel. All assistant answers are deterministic and use the fictional Markdown notes in analytics/reference_notes. No model key is required.
+The dashboard provides rig, UTC date, and anomaly-status filters; cycle and analysis summaries; measurement trends; paginated cycles; cycle detail and score contributions; filtered CSV and text-report downloads; and a cited assistant panel. Answers use deterministic local phrasing by default and the fictional Markdown notes in analytics/reference_notes. No model key is required.
+
+To optionally enable OpenAI-compatible answer phrasing in Compose, set `AEROSENSE_ANSWER_PROVIDER=openai-compatible`, `AEROSENSE_LLM_MODEL` to a compatible model name, and `AEROSENSE_LLM_API_KEY` in the local `.env` file. `AEROSENSE_LLM_BASE_URL` defaults to `https://api.openai.com/v1` and `AEROSENSE_LLM_TIMEOUT_SECONDS` defaults to 8. The provider is called only after lexical retrieval finds evidence; it receives only those fictional passages and any supplied synthetic cycle context. Missing credentials or provider errors use the deterministic local fallback. Do not put keys in source control or use returned text as engineering or maintenance advice.
 
 ## Checks
 
@@ -68,7 +70,7 @@ Check Compose syntax without starting containers with docker compose config --qu
 
 - Java owns public API validation, database access, and persisted analysis runs. Python owns the scoring calculation and local note retrieval.
 - The baseline uses cohort-relative robust z-scores with deterministic numerical contributions. This is a transparent software demonstration, not a validated method.
-- The retrieval service uses lexical ranking over local fictional notes. It returns cited source passages or an insufficient-evidence response.
+- The retrieval service uses lexical ranking over local fictional notes. Deterministic answer phrasing is the default; an optional provider phrases retrieved evidence, with deterministic fallback on provider errors. Unsupported questions never reach the provider and return an insufficient-evidence response.
 - PostgreSQL migrations run through Spring Boot Flyway startup. The optional tools profile can run Flyway manually.
 - All evaluation labels are used only by the evaluation request and are omitted from cycle browsing, inference, and assistant context.
 

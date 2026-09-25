@@ -9,7 +9,7 @@ The prototype needs a persistent public API and a small analytics/retrieval comp
 
 ## Decision
 
-Spring Boot owns public API requests, validation, persistence, and orchestration. Python owns versioned scoring, synthetic evaluation, and deterministic lexical retrieval. For the local MVP, analytics and retrieval can run as separate modules in one FastAPI process.
+Spring Boot owns public API requests, validation, persistence, and orchestration. Python owns versioned scoring, synthetic evaluation, and lexical retrieval. Deterministic answer phrasing is the local default; an optional provider can phrase retrieved evidence and falls back locally on error. For the local MVP, analytics and retrieval can run as separate modules in one FastAPI process.
 
 ## Consequences
 

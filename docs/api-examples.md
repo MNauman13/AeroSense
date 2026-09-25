@@ -158,6 +158,8 @@ The first endpoint returns a UTF-8 CSV attachment with readings and units. The s
 
 ## Grounded assistant
 
+The example shows the default deterministic response. An optional OpenAI-compatible provider can phrase the answer from retrieved notes and synthetic cycle context, but the API still returns citations sourced only from retrieved passages and the same synthetic-only disclaimer. If no evidence is retrieved, the provider is not called.
+
 ```json
 {
   "question": "What does the fictional review note say about this demo cycle?",

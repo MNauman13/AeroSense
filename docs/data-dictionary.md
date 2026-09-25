@@ -40,7 +40,7 @@ Explanations list feature name, observed value, cohort median, signed robust z-s
 - Date filters are optional UTC instants; `from` must be less than or equal to `to`. Missing optional filters are omitted, never represented by an empty string.
 - JSON required fields are non-null. The only defined nullable response field is cycle `isFlagged` before the first analysis; optional request fields may be omitted. Invalid or missing required feature values are validation errors; there is no silent default or imputation.
 - Errors have `code`, safe human-readable `message`, `requestId`, and optional `fieldErrors` (field name to list of messages). No stack trace or credential is returned.
-- `POST /api/v1/assistant/questions` limits questions to 500 characters. The deterministic retrieval path cites only retrieved fictional text and returns `insufficientEvidence: true` with an explicit not-found answer when support is absent.
+- `POST /api/v1/assistant/questions` limits questions to 500 characters. The default deterministic retrieval path cites only retrieved fictional text and returns `insufficientEvidence: true` with an explicit not-found answer when support is absent. The optional provider is called only when evidence is retrieved; its citations still come from those retrieved sources.
 - All assistant responses include the disclaimer: `Synthetic demonstration only. Not engineering or maintenance advice.`
 
 ## Contract examples

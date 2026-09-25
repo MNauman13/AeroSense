@@ -247,7 +247,7 @@ paths:
             schema: {$ref: '#/components/schemas/QuestionRequest'}
       responses:
         '200':
-          description: Deterministic answer with retrieved note citations or insufficient evidence.
+          description: Evidence-grounded answer with retrieved note citations or insufficient evidence. Deterministic by default; an optional provider may phrase answers when evidence exists.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/AnswerResponse'}
@@ -304,7 +304,7 @@ paths:
             schema: {$ref: '#/components/schemas/RetrievalRequest'}
       responses:
         '200':
-          description: Evidence-only deterministic answer from fictional local notes.
+          description: Evidence-grounded answer from fictional local notes. Deterministic by default; an optional provider may phrase answers after evidence is retrieved.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/AnswerResponse'}

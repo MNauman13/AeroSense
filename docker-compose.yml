@@ -29,6 +29,12 @@ services:
     restart: unless-stopped
     ports:
       - "${ANALYTICS_PORT:-8000}:8000"
+    environment:
+      AEROSENSE_ANSWER_PROVIDER: ${AEROSENSE_ANSWER_PROVIDER:-deterministic}
+      AEROSENSE_LLM_BASE_URL: ${AEROSENSE_LLM_BASE_URL:-https://api.openai.com/v1}
+      AEROSENSE_LLM_MODEL: ${AEROSENSE_LLM_MODEL:-}
+      AEROSENSE_LLM_API_KEY: ${AEROSENSE_LLM_API_KEY:-}
+      AEROSENSE_LLM_TIMEOUT_SECONDS: ${AEROSENSE_LLM_TIMEOUT_SECONDS:-8}
     healthcheck:
       test:
         - CMD

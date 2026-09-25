@@ -1,4 +1,4 @@
-"""AeroSense synthetic analytics service; no external model credentials are used."""
+"""AeroSense synthetic analytics service with optional retrieval-backed phrasing."""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from app.detector import score_cycles
 from app.evaluation import evaluate_cycles
 from app.retrieval.answerer import answer_question
 from app.retrieval.corpus import Passage, load_corpus
+from app.retrieval.providers import create_answer_provider
 from app.schemas import (
     AnswerResponse,
     ApiError,
@@ -28,8 +29,8 @@ app = FastAPI(
     title="AeroSense Analytics API",
     version="1.0.0",
     description=(
-        "Synthetic-only scoring, evaluation, and deterministic retrieval "
-        "from fictional local notes. "
+        "Synthetic-only scoring, evaluation, and retrieval from fictional local notes. "
+        "Answers are deterministic by default; an optional provider can phrase retrieved evidence. "
         "Scores and answers are not engineering limits, maintenance guidance, or safety advice."
     ),
 )
@@ -38,6 +39,8 @@ try:
     REFERENCE_PASSAGES: list[Passage] | None = load_corpus()
 except (OSError, ValueError):
     REFERENCE_PASSAGES = None
+
+ANSWER_PROVIDER = create_answer_provider()
 
 
 @app.exception_handler(RequestValidationError)
@@ -87,4 +90,4 @@ def answer(request: RetrievalRequest):
             status_code=503,
             content=failure.model_dump(mode="json", by_alias=True),
         )
-    return answer_question(request, REFERENCE_PASSAGES)
+    return answer_question(request, REFERENCE_PASSAGES, ANSWER_PROVIDER)

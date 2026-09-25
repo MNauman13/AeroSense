@@ -8,11 +8,12 @@ flowchart LR
   Web --> API[Java / Spring Boot API]
   API --> DB[(PostgreSQL)]
   API --> Analytics[Python / FastAPI]
-  API --> Retrieval[Python deterministic retrieval]
+  API --> Retrieval[Python lexical retrieval]
   Retrieval --> Notes[Fictional Markdown notes]
+  Retrieval -. optional phrasing .-> Provider[OpenAI-compatible provider]
 ```
 
-The React client calls only the Java API. Java owns public HTTP contracts, workflow, and persistence. Python accepts versioned JSON for scoring, evaluation, and retrieval, and does not own the relational database. The same Python service hosts analytics and deterministic retrieval while keeping their modules separate. PostgreSQL stores generated cycles and persisted analysis results. Retrieval reads checked-in fictional Markdown notes, assigns stable paragraph chunk IDs, and ranks them lexically; unsupported questions return an explicit insufficient-evidence answer.
+The React client calls only the Java API. Java owns public HTTP contracts, workflow, and persistence. Python accepts versioned JSON for scoring, evaluation, and retrieval, and does not own the relational database. The same Python service hosts analytics and retrieval while keeping their modules separate. PostgreSQL stores generated cycles and persisted analysis results. Retrieval reads checked-in fictional Markdown notes, assigns stable paragraph chunk IDs, and ranks them lexically. Deterministic phrasing is the default; an optional OpenAI-compatible provider sees only retrieved passages and supplied synthetic cycle context. Provider errors fall back to deterministic phrasing, and unsupported questions are returned as insufficient evidence without calling the provider.
 
 ## Data and safety
 
@@ -22,7 +23,7 @@ All data and notes are generated or written as fictional demonstration material 
 
 - Browse: browser → Java API → PostgreSQL.
 - Analyze: Java API → Python scoring → PostgreSQL; results include method, version, threshold, and feature contributions.
-- Ask: browser → Java API → Python lexical retrieval; answers cite retrieved fictional note excerpts or state that the sources do not support an answer.
+- Ask: browser → Java API → Python lexical retrieval → deterministic local phrasing by default (optional provider); answers cite retrieved fictional note excerpts or state that the sources do not support an answer.
 
 Analysis runs execute synchronously over at most 10,000 selected stored cycles. The Java API saves the requested threshold and run status, sends feature vectors without ground-truth labels to Python, then stores scores and numerical explanations. If analytics is unavailable, the run is stored as `FAILED` with a safe summary and no result rows. Synthetic labels are loaded only for the run's separate evaluation request.
 
