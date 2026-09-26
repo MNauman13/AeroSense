@@ -1,0 +1,47 @@
+[tools]
+java = "temurin-21"
+maven = "3.9.9"
+node = "22.12.0"
+python = "3.12.10"
+uv = "0.11.21"
+
+[tasks.setup]
+description = "Install project dependencies and generate local synthetic data"
+depends = ["setup-analytics", "setup-backend", "setup-frontend"]
+
+[tasks.setup-analytics]
+description = "Install locked Python dependencies and generate fixtures"
+dir = "analytics"
+run = [
+  "uv sync --locked --group dev",
+  "uv run --no-sync python -m app.generate_cli --rig-count 3 --cycle-count 1000 --seed 20260101 --output-dir ../data/generated",
+]
+
+[tasks.setup-backend]
+description = "Build the Java API with its embedded H2 demo profile"
+dir = "backend"
+run = "mvn -Plocal-demo -DskipTests package"
+
+[tasks.setup-frontend]
+description = "Install locked frontend dependencies"
+dir = "frontend"
+run = "npm ci"
+
+[tasks.dev]
+description = "Start analytics, the H2-backed API, and the dashboard"
+depends = ["dev-analytics", "dev-api", "dev-dashboard"]
+
+[tasks.dev-analytics]
+description = "Start the Python analytics service"
+dir = "analytics"
+run = "uv run --no-sync uvicorn app.main:app --host 127.0.0.1 --port 8000"
+
+[tasks.dev-api]
+description = "Start the Java API with the in-memory H2 database"
+dir = "backend"
+run = 'java -Dspring.profiles.active=demo -jar target/aerosense-api-0.1.0-SNAPSHOT.jar'
+
+[tasks.dev-dashboard]
+description = "Start the React dashboard"
+dir = "frontend"
+run = "npm run dev -- --host 127.0.0.1"

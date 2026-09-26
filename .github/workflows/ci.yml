@@ -44,6 +44,10 @@ jobs:
         working-directory: backend
         run: mvn --batch-mode --no-transfer-progress spotless:check test
 
+      - name: Package native no-Docker demo API
+        working-directory: backend
+        run: mvn --batch-mode --no-transfer-progress -Plocal-demo -DskipTests package
+
       - name: Check and test Python analytics
         working-directory: analytics
         run: |

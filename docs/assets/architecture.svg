@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1700 1000" role="img" aria-labelledby="title description">
+  <title id="title">AeroSense system architecture</title>
+  <desc id="description">The browser dashboard calls a Java Spring Boot API. The API persists data in PostgreSQL and calls the Python FastAPI service for anomaly analysis and note retrieval. Docker Compose runs the services; native mode substitutes an in-memory H2 database. An optional answer provider is outside the local system.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#08121c"/><stop offset="1" stop-color="#0d1c2a"/></linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#112633"/><stop offset="1" stop-color="#0c1a26"/></linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#153c3d"/><stop offset="1" stop-color="#102a33"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1a3452"/><stop offset="1" stop-color="#122537"/></linearGradient>
+    <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#302b4b"/><stop offset="1" stop-color="#1b2137"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.24"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#70dbc9"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#80b4ff"/></marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#e9b761"/></marker>
+    <style>
+      text{font-family:Inter,Segoe UI,Arial,sans-serif}.title{fill:#eff6fb;font-size:34px;font-weight:700}.sub{fill:#9ab0c1;font-size:16px}.nodeTitle{fill:#edf5fa;font-size:20px;font-weight:700}.nodeSub{fill:#a8bece;font-size:13px}.micro{fill:#89a4b8;font-size:11px;font-weight:700;letter-spacing:1.1px}.tag{fill:#d8e9f3;font-size:11px;font-weight:700}.lineLabel{fill:#a7bece;font-size:11px;font-weight:600}
+    </style>
+  </defs>
+  <rect width="1700" height="1000" rx="28" fill="url(#bg)"/>
+  <circle cx="1570" cy="70" r="300" fill="#4dcfbe" opacity="0.025"/>
+  <text x="72" y="82" class="title">A system with clear service boundaries</text>
+  <text x="74" y="116" class="sub">The Java API is the browser's only backend. It coordinates persistence, analysis, and cited retrieval.</text>
+
+  <rect x="310" y="170" width="1080" height="660" rx="24" fill="url(#frame)" stroke="#365062" stroke-width="1.5"/>
+  <rect x="338" y="191" width="186" height="27" rx="13.5" fill="#183746"/>
+  <circle cx="356" cy="204.5" r="4" fill="#5dd6c8"/>
+  <text x="368" y="209" fill="#b4d2df" font-size="11" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="700" letter-spacing="1.3">DOCKER COMPOSE</text>
+  <text x="1355" y="209" fill="#6f8a9e" font-size="10" font-family="Inter,Segoe UI,Arial,sans-serif" text-anchor="end" letter-spacing="1">LOCAL CONTAINER ENVIRONMENT</text>
+
+  <!-- Data and request paths sit behind the service cards. -->
+  <path d="M260 410H360" fill="none" stroke="#70dbc9" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="310" y="395" class="lineLabel" text-anchor="middle">user</text>
+  <path d="M640 390H755" fill="none" stroke="#70dbc9" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="698" y="373" class="lineLabel" text-anchor="middle">JSON API</text>
+  <path d="M1135 395H1170" fill="none" stroke="#80b4ff" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <text x="1152" y="376" class="lineLabel" text-anchor="middle">JPA</text>
+  <path d="M945 480V560" fill="none" stroke="#70dbc9" stroke-width="3" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <rect x="956" y="497" width="125" height="26" rx="13" fill="#112431" stroke="#294654"/>
+  <text x="1018" y="514" class="lineLabel" text-anchor="middle">versioned JSON</text>
+  <path d="M1125 676H1170" fill="none" stroke="#80b4ff" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <text x="1148" y="658" class="lineLabel" text-anchor="middle">reads</text>
+  <path d="M1125 770H1397V720H1416" fill="none" stroke="#e9b761" stroke-width="2.5" stroke-dasharray="8 7" marker-end="url(#arrowAmber)"/>
+  <path d="M660 690H700V530H820V480" fill="none" stroke="#70dbc9" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+  <text x="694" y="516" class="lineLabel" text-anchor="end">seed file</text>
+
+  <!-- Browser -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="330" width="210" height="160" rx="18" fill="#111f2c" stroke="#314858"/>
+    <circle cx="78" cy="361" r="7" fill="#5dd6c8"/>
+    <text x="96" y="367" class="micro">CLIENT</text>
+    <text x="72" y="405" class="nodeTitle">Browser</text>
+    <text x="72" y="434" class="nodeSub">Analyst explores generated runs</text>
+    <text x="72" y="458" class="nodeSub">No direct database access</text>
+  </g>
+
+  <!-- Dashboard -->
+  <g filter="url(#shadow)">
+    <rect x="360" y="300" width="280" height="180" rx="18" fill="url(#teal)" stroke="#34726d"/>
+    <rect x="382" y="322" width="32" height="32" rx="9" fill="#286c68"/>
+    <path d="M390 344v-11l7-6 7 6v11h-5v-7h-4v7z" fill="#92e6dc"/>
+    <text x="426" y="345" class="micro">WEB CLIENT</text>
+    <text x="382" y="390" class="nodeTitle">React + TypeScript</text>
+    <text x="382" y="420" class="nodeSub">Filters · trends · run details</text>
+    <text x="382" y="444" class="nodeSub">Citations · CSV and report export</text>
+    <text x="382" y="465" fill="#77cbbf" font-size="11" font-family="Inter,Segoe UI,Arial,sans-serif">Vite locally · Nginx in Compose</text>
+  </g>
+
+  <!-- Java API -->
+  <g filter="url(#shadow)">
+    <rect x="755" y="300" width="380" height="180" rx="18" fill="url(#blue)" stroke="#456b91"/>
+    <rect x="778" y="322" width="32" height="32" rx="9" fill="#284c74"/>
+    <path d="M786 332h16M786 338h16M786 344h11" stroke="#9dc3ff" stroke-width="2" stroke-linecap="round"/>
+    <text x="822" y="345" class="micro">APPLICATION API</text>
+    <text x="778" y="390" class="nodeTitle">Java 21 · Spring Boot</text>
+    <text x="778" y="420" class="nodeSub">REST contract · validation · workflow</text>
+    <text x="778" y="444" class="nodeSub">Persistence · analysis orchestration</text>
+    <text x="778" y="465" fill="#8cb8f1" font-size="11" font-family="Inter,Segoe UI,Arial,sans-serif">Single backend contract for the dashboard</text>
+  </g>
+
+  <!-- Database -->
+  <g filter="url(#shadow)">
+    <rect x="1170" y="315" width="190" height="170" rx="18" fill="#182a3a" stroke="#46627c"/>
+    <ellipse cx="1200" cy="346" rx="12" ry="5" fill="none" stroke="#95baf0" stroke-width="2"/>
+    <path d="M1188 346v20c0 3 5 6 12 6s12-3 12-6v-20M1188 356c0 3 5 6 12 6s12-3 12-6" fill="none" stroke="#95baf0" stroke-width="2"/>
+    <text x="1220" y="351" class="micro">PERSISTENCE</text>
+    <text x="1192" y="407" class="nodeTitle">PostgreSQL</text>
+    <text x="1192" y="435" class="nodeSub">Rigs · cycles · readings</text>
+    <text x="1192" y="459" class="nodeSub">Analysis runs and results</text>
+  </g>
+
+  <!-- Fixture job -->
+  <g filter="url(#shadow)">
+    <rect x="360" y="590" width="300" height="200" rx="18" fill="#2a2b36" stroke="#736849"/>
+    <rect x="382" y="612" width="32" height="32" rx="9" fill="#534a32"/>
+    <path d="M389 622h18v14h-18zM393 618h10v4h-10z" fill="none" stroke="#f0c773" stroke-width="2"/>
+    <text x="426" y="635" class="micro">ONE-SHOT CONTAINER</text>
+    <text x="382" y="680" class="nodeTitle">Fixture generator</text>
+    <text x="382" y="710" class="nodeSub">Python CLI · fixed seed</text>
+    <text x="382" y="734" class="nodeSub">3 fictional rigs · 1,000 cycles</text>
+    <text x="382" y="765" fill="#dfbd75" font-size="11" font-family="Inter,Segoe UI,Arial,sans-serif">Writes reproducible local fixture files</text>
+  </g>
+
+  <!-- Analytics service -->
+  <g filter="url(#shadow)">
+    <rect x="755" y="560" width="370" height="230" rx="18" fill="url(#purple)" stroke="#645b91"/>
+    <rect x="778" y="582" width="32" height="32" rx="9" fill="#4a4275"/>
+    <path d="M785 605l6-8 5 4 8-11" fill="none" stroke="#c1b5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="822" y="605" class="micro">ANALYTICS SERVICE</text>
+    <text x="778" y="652" class="nodeTitle">Python · FastAPI</text>
+    <text x="778" y="682" class="nodeSub">Cohort-relative robust z-score analysis</text>
+    <text x="778" y="706" class="nodeSub">Separate fixture evaluation endpoint</text>
+    <text x="778" y="730" class="nodeSub">Lexical retrieval from fictional notes</text>
+    <text x="778" y="764" fill="#b7a9f5" font-size="11" font-family="Inter,Segoe UI,Arial,sans-serif">Deterministic local answers by default</text>
+  </g>
+
+  <!-- Fictional notes -->
+  <g filter="url(#shadow)">
+    <rect x="1170" y="590" width="190" height="160" rx="18" fill="#142734" stroke="#3d6370"/>
+    <path d="M1194 620h21l10 10v29h-31zM1215 620v11h10M1200 640h18M1200 648h18" fill="none" stroke="#83d6ca" stroke-width="2" stroke-linejoin="round"/>
+    <text x="1192" y="684" class="nodeTitle" font-size="17">Reference notes</text>
+    <text x="1192" y="711" class="nodeSub">Local Markdown · fictional</text>
+    <text x="1192" y="733" class="nodeSub">Retrieved passages become citations</text>
+  </g>
+
+  <!-- Optional model -->
+  <g filter="url(#shadow)">
+    <rect x="1415" y="590" width="235" height="160" rx="18" fill="#2b251b" stroke="#76603b" stroke-dasharray="6 5"/>
+    <circle cx="1443" cy="620" r="10" fill="#604b2c"/>
+    <path d="M1438 620h10M1443 615v10" stroke="#f0c773" stroke-width="2" stroke-linecap="round"/>
+    <text x="1462" y="624" class="micro" fill="#dcc28c">OPTIONAL</text>
+    <text x="1437" y="672" class="nodeTitle" font-size="17">Answer provider</text>
+    <text x="1437" y="701" class="nodeSub">OpenAI-compatible API</text>
+    <text x="1437" y="725" class="nodeSub">Only after evidence is retrieved</text>
+  </g>
+
+  <text x="1415" y="789" fill="#8e9eaa" font-size="10" font-family="Inter,Segoe UI,Arial,sans-serif">Outside Compose · disabled by default</text>
+  <text x="1010" y="810" fill="#728b9d" font-size="10" font-family="Inter,Segoe UI,Arial,sans-serif" text-anchor="middle">Solid arrows are service calls · teal dashes carry fixture files · amber dashes mark the optional provider call</text>
+
+  <rect x="310" y="865" width="1080" height="88" rx="18" fill="#111e2a" stroke="#314859"/>
+  <rect x="334" y="889" width="111" height="28" rx="14" fill="#183746"/>
+  <text x="389" y="908" fill="#a6d8d7" font-size="11" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="700" text-anchor="middle">NATIVE MODE</text>
+  <text x="468" y="902" fill="#e1edf4" font-size="14" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="600">Vite + Spring Boot with in-memory H2 + Python FastAPI</text>
+  <text x="468" y="926" fill="#91a8b9" font-size="12" font-family="Inter,Segoe UI,Arial,sans-serif">Same application and analytics boundaries, without Docker or a separately installed PostgreSQL server.</text>
+</svg>

@@ -32,6 +32,12 @@ Run the end-to-end seed → analysis → browse → question flow from PowerShel
 
 Stop services with docker compose down. Remove database and generated fixture files with docker compose down --volumes. Compose port and local demo credentials can be changed in a local .env based on .env.example. The defaults are for local development only.
 
+## Run natively without Docker
+
+Install [mise](https://mise.jdx.dev/installing-mise.html) once. On Windows, you can use `winget install jdx.mise`. From the repository root, run `mise run setup` to install the toolchain and service dependencies, then `mise run dev` to start all three services. The versions and tasks are declared in the root `mise.toml`.
+
+This path uses an in-memory H2 database instead of PostgreSQL. Database state resets when the API exits, and Flyway migrations are not exercised. Use the Compose path above to verify PostgreSQL and its migrations. Open http://localhost:5173 and select **Load synthetic demo data**. Run `scripts/e2e-smoke.ps1` to exercise seed, analysis, browse, and cited-answer flows against the native API.
+
 ## Local browser client
 
 To run the client outside Compose, change to frontend/, install the locked dependencies with npm ci, and start Vite with npm run dev. It serves http://localhost:5173 and proxies /api requests to the Java API at http://127.0.0.1:8080. Set VITE_API_PROXY_TARGET if the API uses another address.
@@ -50,7 +56,7 @@ Use mvn spotless:apply to format Java sources.
 
 Python checks from analytics/:
 
-    uv sync --group dev
+    uv sync --locked --group dev
     uv run ruff check app tests
     uv run ruff format --check app tests
     uv run pytest
@@ -64,7 +70,7 @@ Frontend checks from frontend/:
     npm test
     npm run build
 
-Check Compose syntax without starting containers with docker compose config --quiet. Container builds, migrations, and the live end-to-end smoke test require a working Docker Engine.
+Check Compose syntax without starting containers with docker compose config --quiet. Docker Engine is required for container builds, Compose startup, and PostgreSQL migration checks. The API end-to-end smoke script also runs against the native H2 demo path.
 
 ## Implementation choices
 

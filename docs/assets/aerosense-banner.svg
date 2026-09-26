@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 470" role="img" aria-labelledby="title description">
+  <title id="title">AeroSense synthetic test data explorer</title>
+  <desc id="description">A dark teal and blue project banner with a miniature dashboard, sensor trend line, and synthetic test run metrics.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111b"/>
+      <stop offset="0.58" stop-color="#102334"/>
+      <stop offset="1" stop-color="#0b1724"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#52d6c4" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#579bff" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#152838"/>
+      <stop offset="1" stop-color="#101d2a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#02070c" flood-opacity="0.35"/>
+    </filter>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#9ec3df" fill-opacity="0.16"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="470" rx="28" fill="url(#background)"/>
+  <rect width="1600" height="470" rx="28" fill="url(#dots)" opacity="0.38"/>
+  <circle cx="1510" cy="-60" r="330" fill="url(#glow)"/>
+  <circle cx="1320" cy="452" r="290" fill="#3fcabb" opacity="0.035"/>
+  <path d="M0 382 C300 315 470 485 770 380 S1200 270 1600 340" fill="none" stroke="#65d9cc" stroke-opacity="0.13" stroke-width="2"/>
+
+  <g transform="translate(78 68)">
+    <path d="M0 17 17 0h18L17 47H0l17-30Z" fill="#55d5c5"/>
+    <path d="M23 47 40 0h18L41 47H23Z" fill="#6ba8ff"/>
+    <text x="76" y="28" fill="#f3f8fc" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="4">AEROSENSE</text>
+    <text x="76" y="52" fill="#8ea7bc" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11" font-weight="600" letter-spacing="3">SYSTEMS TEST DATA EXPLORER</text>
+  </g>
+
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <rect x="80" y="163" width="282" height="31" rx="15.5" fill="#143c3e" stroke="#2a766f" stroke-opacity="0.8"/>
+    <circle cx="98" cy="178.5" r="4" fill="#55d5c5"/>
+    <text x="111" y="183" fill="#8ce5d9" font-size="12" font-weight="700" letter-spacing="1.2">LOCAL-FIRST · SYNTHETIC DATA</text>
+    <text x="78" y="269" fill="#f1f6fb" font-size="64" font-weight="750" letter-spacing="-2.2">AeroSense</text>
+    <text x="82" y="313" fill="#d7e5ef" font-size="23" font-weight="500">Explore generated landing-gear test runs.</text>
+    <text x="82" y="350" fill="#91a9bd" font-size="17">Compare sensor trends, inspect unusual results,</text>
+    <text x="82" y="376" fill="#91a9bd" font-size="17">and follow answers back to their sources.</text>
+    <g transform="translate(82 412)">
+      <rect width="134" height="30" rx="15" fill="#132c3b" stroke="#294154"/>
+      <text x="67" y="20" fill="#c2d3df" font-size="11" font-weight="700" text-anchor="middle">REACT + TYPESCRIPT</text>
+      <rect x="146" width="146" height="30" rx="15" fill="#132c3b" stroke="#294154"/>
+      <text x="219" y="20" fill="#c2d3df" font-size="11" font-weight="700" text-anchor="middle">SPRING BOOT + JAVA</text>
+      <rect x="304" width="126" height="30" rx="15" fill="#132c3b" stroke="#294154"/>
+      <text x="367" y="20" fill="#c2d3df" font-size="11" font-weight="700" text-anchor="middle">FASTAPI + PYTHON</text>
+    </g>
+  </g>
+
+  <g transform="translate(828 64)" filter="url(#shadow)">
+    <rect width="700" height="350" rx="20" fill="url(#card)" stroke="#304657"/>
+    <path d="M0 60h700" stroke="#263a49"/>
+    <circle cx="28" cy="30" r="5" fill="#56d6c5"/>
+    <text x="47" y="35" fill="#dbe8f1" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1.5">DEMO OVERVIEW</text>
+    <text x="652" y="35" fill="#829bad" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="10" text-anchor="end" letter-spacing="1.5">GENERATED DATA</text>
+    <g font-family="Inter,Segoe UI,Arial,sans-serif">
+      <rect x="26" y="82" width="196" height="76" rx="12" fill="#10202d" stroke="#263a49"/>
+      <rect x="240" y="82" width="196" height="76" rx="12" fill="#10202d" stroke="#263a49"/>
+      <rect x="454" y="82" width="220" height="76" rx="12" fill="#10202d" stroke="#263a49"/>
+      <circle cx="46" cy="104" r="4" fill="#55d5c5"/><text x="58" y="108" fill="#91aabd" font-size="11">TEST RUNS</text>
+      <text x="44" y="143" fill="#f1f6fb" font-size="29" font-weight="700">1,000</text>
+      <circle cx="260" cy="104" r="4" fill="#72a8ff"/><text x="272" y="108" fill="#91aabd" font-size="11">TEST BENCHES</text>
+      <text x="258" y="143" fill="#f1f6fb" font-size="29" font-weight="700">3</text>
+      <circle cx="474" cy="104" r="4" fill="#f0b862"/><text x="486" y="108" fill="#91aabd" font-size="11">RUNS THAT STAND OUT</text>
+      <text x="472" y="143" fill="#f1f6fb" font-size="29" font-weight="700">59</text>
+    </g>
+    <rect x="26" y="180" width="648" height="142" rx="12" fill="#0c1823" stroke="#263a49"/>
+    <g stroke="#294050" stroke-dasharray="4 7">
+      <path d="M50 220h596"/><path d="M50 256h596"/><path d="M50 292h596"/>
+    </g>
+    <path d="M52 280 73 264 94 274 115 246 136 260 157 258 178 227 199 253 220 244 241 275 262 251 283 259 304 227 325 251 346 242 367 272 388 236 409 256 430 249 451 210 472 253 493 244 514 260 535 229 556 258 577 247 598 269 619 223 646 238" fill="none" stroke="#55d5c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="48" y="311" fill="#7f99ad" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="9">RECENT GENERATED VIBRATION READINGS</text>
+  </g>
+</svg>

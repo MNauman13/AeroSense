@@ -4,6 +4,7 @@ import { displayRunCode, MEASUREMENT_GUIDE } from "../presentation";
 interface TrendChartProps {
   trend: MeasurementTrendResponse | null;
   loading: boolean;
+  noDataset: boolean;
 }
 
 const WIDTH = 760;
@@ -13,7 +14,7 @@ const RIGHT = 22;
 const TOP = 24;
 const BOTTOM = 38;
 
-export function TrendChart({ trend, loading }: TrendChartProps) {
+export function TrendChart({ trend, loading, noDataset }: TrendChartProps) {
   if (loading && !trend) {
     return <div className="chart-state">Loading example readings…</div>;
   }
@@ -23,9 +24,15 @@ export function TrendChart({ trend, loading }: TrendChartProps) {
         <span className="empty-mark" aria-hidden="true">
           ↗
         </span>
-        <strong>No readings found for these filters</strong>
+        <strong>
+          {noDataset
+            ? "No sample data loaded"
+            : "No readings match these filters"}
+        </strong>
         <span>
-          Choose another test bench or date range to see different runs.
+          {noDataset
+            ? "Load the sample data above to explore measurement trends."
+            : "Choose another test bench or date range to find matching runs."}
         </span>
       </div>
     );

@@ -319,8 +319,8 @@ export default function App() {
         <div className="sidebar-system">
           <span className="system-indicator" />
           <div>
-            <strong>MADE-UP SAMPLE</strong>
-            <small>For software demonstration only</small>
+            <strong>SYNTHETIC DATA</strong>
+            <small>Software demonstration only</small>
           </div>
         </div>
         <div className="sidebar-build">
@@ -336,52 +336,43 @@ export default function App() {
             <strong>Overview</strong>
           </div>
           <div className="topbar-right">
-            <span className="topbar-date">MADE-UP DATA · LOCAL DEMO</span>
+            <span className="topbar-date">SYNTHETIC DATA · LOCAL DEMO</span>
           </div>
         </header>
 
         <div className="content-wrap">
           <section aria-labelledby="story-heading" className="story-panel">
             <div className="story-heading">
-              <span className="eyebrow">
-                A MADE-UP GROUND TEST · NO REAL AIRCRAFT DATA
-              </span>
-              <h1 id="story-heading">A made-up landing gear test</h1>
+              <span className="eyebrow">SYNTHETIC AIRCRAFT TEST DATA</span>
+              <h1 id="story-heading">Explore landing gear test runs</h1>
               <p>
-                The example is inspired by landing gear—the wheels and support
-                mechanism under a plane—but every part and reading here is
-                fictional. Imagine that mechanism held on a workbench while it
-                is tested repeatedly.
+                Explore 1,000 generated landing gear test runs across three test
+                benches. Compare five readings and inspect unusual runs. No real
+                aircraft data is used.
               </p>
             </div>
-            <div className="story-definitions" aria-label="What the words mean">
-              <div>
-                <strong>Test bench</strong>
-                <span>
-                  A made-up work stand that holds the mechanism during a test.
-                </span>
+            <details className="story-glossary">
+              <summary>What do these terms mean?</summary>
+              <div className="story-definitions" aria-label="Term definitions">
+                <div>
+                  <strong>Test bench</strong>
+                  <span>
+                    A stand that holds the example mechanism during a test.
+                  </span>
+                </div>
+                <div>
+                  <strong>Test run</strong>
+                  <span>One recorded extension test.</span>
+                </div>
+                <div>
+                  <strong>Measurements</strong>
+                  <span>
+                    Five generated readings: extension time, pressure,
+                    vibration, temperature, and total test time.
+                  </span>
+                </div>
               </div>
-              <div>
-                <strong>Test run (cycle)</strong>
-                <span>
-                  One extension check, recorded as one row in the list.
-                </span>
-              </div>
-              <div>
-                <strong>Readings</strong>
-                <span>
-                  Five invented readings: extension time, pressure, vibration,
-                  temperature, and total test time.
-                </span>
-              </div>
-            </div>
-            <div className="story-purpose">
-              <strong>Why compare runs?</strong>
-              <span>
-                To see how software can spot readings that differ from other
-                runs. A highlight is a demo result, not a real warning.
-              </span>
-            </div>
+            </details>
           </section>
 
           {(notice || dashboardError || rigError) && (
@@ -414,91 +405,128 @@ export default function App() {
             </div>
           )}
 
-          <section aria-label="Dataset filters" className="filter-bar">
+          <section
+            aria-label={noCycles ? "Load synthetic data" : "Dataset filters"}
+            className={noCycles ? "filter-bar filter-bar-empty" : "filter-bar"}
+          >
             <div className="filter-heading">
               <div>
-                <strong>Choose what to explore</strong>
-                <small>Start with all test benches or choose one.</small>
+                <strong>
+                  {noCycles ? "Start with sample data" : "Filter and compare"}
+                </strong>
+                <small>
+                  {noCycles
+                    ? "Load the generated runs to explore readings and trends."
+                    : "Choose a test bench and compare its runs."}
+                </small>
               </div>
             </div>
-            <label className="filter-field">
-              <span>Test bench</span>
-              <select
-                aria-label="Test bench"
-                onChange={(event) => updateFilter("rigId", event.target.value)}
-                value={filters.rigId}
-              >
-                <option value="">All test benches</option>
-                {rigs.map((rig) => (
-                  <option key={rig.id} value={rig.id}>
-                    {displayBenchCode(rig.rigCode)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <details className="more-filters">
-              <summary>Dates and which runs appear</summary>
-              <div className="more-filter-fields">
+            {!noCycles && (
+              <>
                 <label className="filter-field">
-                  <span>From date</span>
-                  <input
-                    aria-label="From date"
-                    onChange={(event) =>
-                      updateFilter("from", event.target.value)
-                    }
-                    type="date"
-                    value={filters.from}
-                  />
-                </label>
-                <label className="filter-field">
-                  <span>To date</span>
-                  <input
-                    aria-label="To date"
-                    onChange={(event) => updateFilter("to", event.target.value)}
-                    type="date"
-                    value={filters.to}
-                  />
-                </label>
-                <label className="filter-field filter-field-status">
-                  <span>Show runs</span>
+                  <span>Test bench</span>
                   <select
-                    aria-label="Demo comparison result"
+                    aria-label="Test bench"
                     onChange={(event) =>
-                      updateFilter(
-                        "flagged",
-                        event.target.value as FilterState["flagged"],
-                      )
+                      updateFilter("rigId", event.target.value)
                     }
-                    value={filters.flagged}
+                    value={filters.rigId}
                   >
-                    <option value="">All runs</option>
-                    <option value="true">Stands out</option>
-                    <option value="false">Similar to others</option>
+                    <option value="">All test benches</option>
+                    {rigs.map((rig) => (
+                      <option key={rig.id} value={rig.id}>
+                        {displayBenchCode(rig.rigCode)}
+                      </option>
+                    ))}
                   </select>
                 </label>
-                <button
-                  className="clear-filters"
-                  onClick={() => {
-                    setPage(0);
-                    setFilters({ rigId: "", from: "", to: "", flagged: "" });
-                  }}
-                  type="button"
-                >
-                  Clear filters
-                </button>
-              </div>
-            </details>
+                <details className="more-filters">
+                  <summary>Date and result filters</summary>
+                  <div className="more-filter-fields">
+                    <label className="filter-field">
+                      <span>From date</span>
+                      <input
+                        aria-label="From date"
+                        onChange={(event) =>
+                          updateFilter("from", event.target.value)
+                        }
+                        type="date"
+                        value={filters.from}
+                      />
+                    </label>
+                    <label className="filter-field">
+                      <span>To date</span>
+                      <input
+                        aria-label="To date"
+                        onChange={(event) =>
+                          updateFilter("to", event.target.value)
+                        }
+                        type="date"
+                        value={filters.to}
+                      />
+                    </label>
+                    <label className="filter-field filter-field-status">
+                      <span>Show runs</span>
+                      <select
+                        aria-label="Demo comparison result"
+                        onChange={(event) =>
+                          updateFilter(
+                            "flagged",
+                            event.target.value as FilterState["flagged"],
+                          )
+                        }
+                        value={filters.flagged}
+                      >
+                        <option value="">All runs</option>
+                        <option value="true">Stands out</option>
+                        <option value="false">Similar to others</option>
+                      </select>
+                    </label>
+                    <button
+                      className="clear-filters"
+                      onClick={() => {
+                        setPage(0);
+                        setFilters({
+                          rigId: "",
+                          from: "",
+                          to: "",
+                          flagged: "",
+                        });
+                      }}
+                      type="button"
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                </details>
+              </>
+            )}
             <div className="analysis-action">
-              <button
-                className="button button-primary"
-                disabled={running || noCycles}
-                onClick={startAnalysis}
-                title="Compares example readings among runs at the selected bench and dates."
-              >
-                <span aria-hidden="true">{running ? "◌" : "↔"}</span>
-                {running ? "Comparing runs…" : "Compare these runs"}
-              </button>
-              <small>Highlights readings that differ from the group.</small>
+              {noCycles ? (
+                <button
+                  className="button button-primary"
+                  disabled={seeding}
+                  onClick={seedData}
+                >
+                  <span aria-hidden="true">{seeding ? "◌" : "+"}</span>
+                  {seeding ? "Loading sample…" : "Load sample data"}
+                </button>
+              ) : (
+                <button
+                  className="button button-primary"
+                  disabled={running || loading || !summary}
+                  onClick={startAnalysis}
+                  title="Compares example readings among runs at the selected bench and dates."
+                >
+                  <span aria-hidden="true">{running ? "◌" : "↔"}</span>
+                  {running ? "Comparing runs…" : "Compare these runs"}
+                </button>
+              )}
+              <small>
+                {noCycles
+                  ? "Load the fictional runs to begin exploring."
+                  : "Highlights runs with readings that differ from the group."}
+              </small>
               {lastRun && (
                 <small className="last-run-note">
                   Last comparison: {lastRun.cycleCount.toLocaleString("en-GB")}{" "}
@@ -528,9 +556,11 @@ export default function App() {
                 hasComparison ? summary?.flaggedCycles : comparedCycleCount,
               )}
               detail={
-                hasComparison
-                  ? "Their generated readings differ from most others."
-                  : "Choose “Compare these runs” to look for differences."
+                noCycles
+                  ? "Load the sample data above to compare runs."
+                  : hasComparison
+                    ? "Their generated readings differ from most others."
+                    : "Choose “Compare these runs” to look for differences."
               }
             />
           </section>
@@ -572,7 +602,11 @@ export default function App() {
                 The line follows this invented reading across recent runs. Read
                 left to right to follow the test dates.
               </p>
-              <TrendChart loading={loading} trend={trend} />
+              <TrendChart
+                loading={loading}
+                noDataset={noCycles}
+                trend={trend}
+              />
               <div className="trend-disclaimer">
                 A high or low point is a difference in made-up data, not a
                 warning about real equipment.
@@ -633,16 +667,7 @@ export default function App() {
                     ＋
                   </span>
                   <strong>No example runs loaded</strong>
-                  <span>
-                    Add the fictional sample runs to explore this dashboard.
-                  </span>
-                  <button
-                    className="button button-secondary"
-                    disabled={seeding}
-                    onClick={seedData}
-                  >
-                    {seeding ? "Loading sample…" : "Load example test runs"}
-                  </button>
+                  <span>Load the sample data above to explore the runs.</span>
                 </div>
               )}
               {!noCycles && cyclePage?.items.length === 0 && (
@@ -761,7 +786,7 @@ export default function App() {
           <footer className="app-footer">
             <span>© 2026 AeroSense · Software demonstration</span>
             <span>
-              Invented data only <i /> Not a real equipment assessment
+              Synthetic data only <i /> Not an engineering assessment
             </span>
           </footer>
         </div>

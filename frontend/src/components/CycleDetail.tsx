@@ -114,12 +114,12 @@ export function CycleDetail({
               <details className="score-method">
                 <summary>How did the demo compare the runs?</summary>
                 <p>
-                  It compares this run’s invented readings with the middle
-                  reading for each measure in the selected group. The largest
-                  difference sets the score. A score of{" "}
-                  {analysis.threshold.toFixed(2)} or higher is marked “Stands
-                  out” for this demo. That cutoff is an example software
-                  setting, not an engineering limit.
+                  The service calculates an absolute robust z-score for each
+                  reading using the selected group’s median and median absolute
+                  deviation (MAD). It scales the largest contribution to a 0–1
+                  demo score. Scores of {analysis.threshold.toFixed(2)} or
+                  higher are marked “Stands out”. This synthetic threshold is
+                  not an engineering limit.
                 </p>
               </details>
               <details className="other-readings">

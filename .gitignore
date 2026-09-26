@@ -12,6 +12,8 @@ __pycache__/
 venv/
 *.egg-info/
 analytics/pytest-cache-files-*/
+analytics/.pytest-*/
+analytics/.uv-cache/
 
 # Node / Vite
 node_modules/

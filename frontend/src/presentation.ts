@@ -6,28 +6,28 @@ export const MEASUREMENT_GUIDE: Record<
 > = {
   extension_time_ms: {
     label: "Time to extend",
-    unit: "milliseconds (ms)",
-    description: "How long the made-up mechanism took to extend.",
+    unit: "ms",
+    description: "Duration of the example extension movement.",
   },
   pressure_kpa: {
     label: "Pressure reading",
-    unit: "kilopascals (kPa)",
-    description: "An invented pressure reading from the test bench.",
+    unit: "kPa",
+    description: "Example pressure recorded at the test bench.",
   },
   vibration_rms: {
     label: "Vibration level",
     unit: "demo units",
-    description: "An example vibration reading with no real equipment meaning.",
+    description: "Example vibration measurement for this demo.",
   },
   temperature_c: {
     label: "Temperature",
-    unit: "degrees Celsius (°C)",
-    description: "An invented temperature reading from the test bench.",
+    unit: "°C",
+    description: "Example temperature recorded at the test bench.",
   },
   cycle_duration_ms: {
     label: "Total test time",
-    unit: "milliseconds (ms)",
-    description: "How long the complete example run took.",
+    unit: "ms",
+    description: "Duration of the full example test run.",
   },
 };
 

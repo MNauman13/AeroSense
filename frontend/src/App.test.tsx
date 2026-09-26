@@ -183,11 +183,13 @@ describe("AeroSense dashboard", () => {
     expect(await screen.findByText("Run 000101")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "A made-up landing gear test",
+        name: "Explore landing gear test runs",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Test run (cycle)")).toBeInTheDocument();
-    expect(screen.getByText("Why compare runs?")).toBeInTheDocument();
+    expect(screen.getByText("Extension test")).toBeInTheDocument();
+    expect(
+      screen.getByText("Choose a test bench and compare its runs."),
+    ).toBeInTheDocument();
     expect(screen.getByText("All test benches")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Compare these runs" }),
@@ -255,7 +257,7 @@ describe("AeroSense dashboard", () => {
       "Summary service offline",
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "A made-up landing gear test",
+      "Explore landing gear test runs",
     );
   });
 });

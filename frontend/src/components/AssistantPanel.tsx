@@ -39,20 +39,28 @@ export function AssistantPanel({ cycleId, cycleCode }: AssistantPanelProps) {
     >
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">MADE-UP DEMO NOTES</span>
-          <h2 id="assistant-heading">Ask about the demo notes</h2>
+          <span className="eyebrow">FICTIONAL REFERENCE NOTES</span>
+          <h2 id="assistant-heading">Ask about the reference notes</h2>
         </div>
         <span className="local-badge">
-          <span aria-hidden="true">●</span> Uses demo notes only
+          <span aria-hidden="true">●</span> Fictional sources only
         </span>
       </div>
       <p className="assistant-intro">
-        Search the short fictional notes that come with this example. They
-        describe the demo only, not real aircraft or equipment.
+        Get answers from the fictional notes with source excerpts, or see when
+        the notes do not contain enough evidence.
       </p>
-      <p className="assistant-example">
-        Try: “What does a test run mean here?”
-      </p>
+      <button
+        className="assistant-example"
+        onClick={() => {
+          setQuestion("What should I compare in the synthetic example?");
+          setAnswer(null);
+          setError(null);
+        }}
+        type="button"
+      >
+        Try an example: “What should I compare in the synthetic example?”
+      </button>
       <form className="question-form" onSubmit={submitQuestion}>
         <label className="sr-only" htmlFor="assistant-question">
           Your question
