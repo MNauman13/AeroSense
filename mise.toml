@@ -38,10 +38,9 @@ run = "uv run --no-sync uvicorn app.main:app --host 127.0.0.1 --port 8000"
 
 [tasks.dev-api]
 description = "Start the Java API with the in-memory H2 database"
-dir = "backend"
-run = 'java -Dspring.profiles.active=demo -jar target/aerosense-api-0.1.0-SNAPSHOT.jar'
+run = 'java -Dspring.profiles.active=demo -jar backend/target/aerosense-api-0.1.0-SNAPSHOT.jar'
 
 [tasks.dev-dashboard]
 description = "Start the React dashboard"
 dir = "frontend"
-run = "npm run dev -- --host 127.0.0.1"
+run = "npm run dev"
